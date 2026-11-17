@@ -1,4 +1,5 @@
-/* A small photo universe. No framework, WebGL, account, or API key required.
+/* A small photo universe. No framework, account, or API key required.
+ * True 3D globe + optional WebGL core: see globe-physics.js.
  * Keep image/anh1.jpg … image/anh10.jpg and image/nhac.mp3 from the original.
  */
 (() => {
@@ -56,7 +57,7 @@
       const img = document.createElement("img");
       img.src = images[index]; img.alt = ""; img.draggable = false;
       button.append(img); globe.append(button);
-      const tile = { el: button, index, x: Math.sin(phi) * Math.sin(theta),
+      const tile = { el: button, index, phi, theta, x: Math.sin(phi) * Math.sin(theta),
         y: -Math.cos(phi), z: Math.sin(phi) * Math.cos(theta),
         angle: random() * TAU, depth: random() * 2.8, float: random() * TAU,
         screen: { x: width / 2, y: height / 2, scale: 0, stretch: 1, rotation: 0, opacity: 0, z: 0 } };
@@ -65,6 +66,8 @@
       tiles.push(tile);
     }
   }
+  const rigidGlobe = window.PhotoGlobe && window.THREE && window.THREE.CSS3DRenderer ?
+    new window.PhotoGlobe.GlobeRenderer(globe, tiles, 10) : null;
   images.forEach((src, i) => {
     const img = document.createElement("img");
     img.src = src; img.alt = "Ảnh kỷ niệm " + (i + 1);
@@ -78,6 +81,7 @@
     canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     radius = Math.min(width * .29, height * .285, 230);
+    if (rigidGlobe) rigidGlobe.resize(width, height, radius);
     stars = Array.from({ length: width < 600 ? 125 : 260 }, () => ({
       x: random() * width, y: random() * height, r: .35 + random() * 1.2,
       depth: .2 + random(), phase: random() * TAU, alpha: .2 + random() * .6
@@ -109,6 +113,10 @@
     }
   }
   function setScene(next, now = performance.now()) {
+    if (rigidGlobe && next !== "globe") {
+      rigidGlobe.physics.stop();
+      rigidGlobe.setActive(false);
+    }
     scene = next; sceneStart = now; document.body.dataset.scene = next;
     intro.inert = next !== "intro";
     intro.setAttribute("aria-hidden", String(next !== "intro"));
@@ -166,6 +174,7 @@
 
   function showPhoto(index) {
     if (scene !== "globe" || performance.now() - lastDragAt < 250) return;
+    if (rigidGlobe) rigidGlobe.physics.stop();
     selectedPhoto = (index + images.length) % images.length;
     $("large-photo").src = images[selectedPhoto];
     $("large-photo").alt = "Ảnh kỷ niệm " + (selectedPhoto + 1) + " cùng cô Nga";
@@ -195,32 +204,41 @@
   });
 
   globe.addEventListener("pointerdown", e => {
-    if (scene !== "globe" || photoDialog.open || e.button !== 0) return;
+    if (scene !== "globe" || photoDialog.open || e.button !== 0 || drag) return;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, lastX: e.clientX, lastY: e.clientY,
       moved: false, target: e.target.closest(".photo-tile") || globe };
     drag.target.setPointerCapture(e.pointerId);
     yawVelocity = pitchVelocity = 0;
+    if (rigidGlobe) rigidGlobe.physics.begin(e.clientX, e.clientY, performance.now() / 1000, rigidGlobe.geometry());
   });
   globe.addEventListener("pointermove", e => {
     if (!drag || drag.id !== e.pointerId) return;
     if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6) drag.moved = true;
     if (drag.moved) {
       const dx = e.clientX - drag.lastX, dy = e.clientY - drag.lastY;
-      yaw += dx * .006; pitch = clamp(pitch - dy * .004, -.8, .8);
-      yawVelocity = dx * .00025; pitchVelocity = -dy * .00012;
+      if (rigidGlobe) {
+        rigidGlobe.physics.move(e.clientX, e.clientY, performance.now() / 1000, rigidGlobe.geometry());
+      } else {
+        yaw += dx * .006; pitch = clamp(pitch - dy * .004, -.8, .8);
+        yawVelocity = dx * .00025; pitchVelocity = -dy * .00012;
+      }
       hint.classList.remove("show"); globe.classList.add("dragging");
     }
     drag.lastX = e.clientX; drag.lastY = e.clientY;
   });
   function endDrag(e) {
     if (!drag || (e && e.pointerId !== drag.id)) return;
-    if (drag.moved) lastDragAt = performance.now();
-    if (drag.target.hasPointerCapture(drag.id)) drag.target.releasePointerCapture(drag.id);
+    const ended = drag;
     drag = null; globe.classList.remove("dragging");
+    if (ended.moved) lastDragAt = performance.now();
+    if (rigidGlobe) rigidGlobe.physics.end(performance.now() / 1000,
+      !ended.moved || !e || e.type === "pointercancel" || reduced);
+    if (ended.target.hasPointerCapture(ended.id)) ended.target.releasePointerCapture(ended.id);
   }
   globe.addEventListener("pointerup", endDrag);
   globe.addEventListener("pointercancel", endDrag);
   globe.addEventListener("lostpointercapture", endDrag);
+  addEventListener("blur", () => endDrag());
 
   document.addEventListener("pointermove", e => {
     const now = performance.now(), dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
@@ -314,6 +332,7 @@
   function restart(now) {
     transition = null; restore = null; heartStart = 0; flashStart = now;
     yaw = 0; pitch = -.12; yawVelocity = pitchVelocity = 0;
+    if (rigidGlobe) rigidGlobe.physics.reset();
     trails = []; rings = []; bursts = [];
     gallery.classList.remove("visible"); finale.classList.remove("visible");
     envelope.classList.remove("ready");
@@ -324,9 +343,8 @@
   }
 
   function spherePosition(tile, now, i) {
-    const mx = pointer.active && !reduced ? (pointer.x / width - .5) * .16 : 0;
-    const my = pointer.active && !reduced ? (pointer.y / height - .5) * .1 : 0;
-    const a = yaw + mx, p = pitch + my;
+    if (rigidGlobe) return rigidGlobe.position(i);
+    const a = yaw, p = pitch;
     const x = tile.x * Math.cos(a) + tile.z * Math.sin(a);
     const z0 = tile.z * Math.cos(a) - tile.x * Math.sin(a);
     const y = tile.y * Math.cos(p) - z0 * Math.sin(p);
@@ -367,10 +385,21 @@
     for (const key of ["x", "y", "scale", "stretch", "rotation", "opacity", "z"]) out[key] = lerp(a[key], b[key], t);
     return out;
   }
-  function renderTiles(now, dt) {
+  function renderTiles(now, dt, seconds) {
     if (scene === "intro") return;
-    if (scene === "globe" && !drag && !photoDialog.open && !reduced) {
-      yaw += (.0011 + yawVelocity) * dt;
+    if (rigidGlobe) {
+      if (scene === "globe" && !photoDialog.open && !reduced) rigidGlobe.physics.step(seconds);
+      else if (reduced) rigidGlobe.physics.stop();
+      const enter = reduced || restore ? 1 : ease((now - sceneStart) / 1600);
+      rigidGlobe.prepare(enter);
+      if (scene === "globe" && !restore) {
+        rigidGlobe.setActive(true);
+        rigidGlobe.render();
+        return;
+      }
+      rigidGlobe.setActive(false);
+    } else if (scene === "globe" && !drag && !photoDialog.open && !reduced) {
+      yaw += yawVelocity * dt;
       pitch = clamp(pitch + pitchVelocity * dt, -.8, .8);
       yawVelocity *= Math.pow(.94, dt); pitchVelocity *= Math.pow(.94, dt);
     }
@@ -523,6 +552,7 @@
   }
 
   function frame(now) {
+    const seconds = clamp((now - lastFrame) / 1000, 0, .1);
     const dt = clamp((now - lastFrame) / 16.667, .1, 2.5); lastFrame = now;
     const elapsed = now - sceneStart;
     if (scene === "intro") {
@@ -563,7 +593,7 @@
       if (musicWanted && !audio.paused) audio.volume = .55 * progress;
       if (progress === 1) flashStart = 0;
     }
-    drawUniverse(now, dt); renderTiles(now, dt);
+    drawUniverse(now, dt); renderTiles(now, dt, seconds);
     requestAnimationFrame(frame);
   }
   document.addEventListener("visibilitychange", () => {
