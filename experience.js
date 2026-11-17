@@ -10,6 +10,7 @@
   const ease = t => 1 - Math.pow(1 - clamp(t), 3);
   const smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
   const TAU = Math.PI * 2;
+  const GLOBE_ROWS = 8;
   const images = Array.from({ length: 10 }, (_, i) => "image/anh" + (i + 1) + ".jpg");
   const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
   let reduced = motionQuery.matches;
@@ -31,21 +32,13 @@
   let drag = null, lastDragAt = -1000, hovered = -1, selectedPhoto = 0, flipped = false;
   let activated = false, musicWanted = false, musicAttempt = 0, hiddenAt = 0;
   let stars = [], dust = [], bursts = [], rings = [], trails = [], textPoints = [];
-  let lastFirework = 0, background;
+  let background;
   const tiles = [], heartPoints = [];
 
-  // Filled heart: concentric versions of the classic heart curve.
-  for (let ring = 1; ring <= 6; ring++) {
-    for (let n = 0; n < ring * 6; n++) {
-      const t = n / (ring * 6) * TAU, s = ring / 6;
-      heartPoints.push({ x: Math.pow(Math.sin(t), 3) * s,
-        y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16 * s });
-    }
-  }
   // Latitude rows retain the tiled appearance of the original photo globe.
-  for (let row = 0; row < 10; row++) {
-    const phi = Math.PI * (row + .5) / 10;
-    const cols = Math.max(3, Math.round(20 * Math.sin(phi)));
+  for (let row = 0; row < GLOBE_ROWS; row++) {
+    const phi = Math.PI * (row + .5) / GLOBE_ROWS;
+    const cols = Math.max(3, Math.round(2 * GLOBE_ROWS * Math.sin(phi)));
     for (let col = 0; col < cols; col++) {
       const theta = col / cols * TAU, index = tiles.length % images.length;
       const button = document.createElement("button");
@@ -67,11 +60,36 @@
     }
   }
   const rigidGlobe = window.PhotoGlobe && window.THREE && window.THREE.CSS3DRenderer ?
-    new window.PhotoGlobe.GlobeRenderer(globe, tiles, 10) : null;
+    new window.PhotoGlobe.GlobeRenderer(globe, tiles, GLOBE_ROWS) : null;
+  // Even spacing along the heart keeps its outline clear with fewer photos.
+  const outline = [], lengths = [0];
+  for (let n = 0; n <= 720; n++) {
+    const t = n / 720 * TAU;
+    const p = { x: Math.pow(Math.sin(t), 3),
+      y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16 };
+    if (n) lengths.push(lengths[n - 1] + Math.hypot(p.x - outline[n - 1].x, p.y - outline[n - 1].y));
+    outline.push(p);
+  }
+  const outerCount = Math.round(tiles.length * .62), middleCount = Math.round(tiles.length * .27);
+  for (const ring of [
+    { count: tiles.length - outerCount - middleCount, scale: .23 },
+    { count: middleCount, scale: .59 },
+    { count: outerCount, scale: 1 }
+  ]) {
+    let segment = 1;
+    for (let n = 0; n < ring.count; n++) {
+      const distance = n / ring.count * lengths[lengths.length - 1];
+      while (segment < lengths.length - 1 && lengths[segment] < distance) segment++;
+      const t = (distance - lengths[segment - 1]) / Math.max(1e-8, lengths[segment] - lengths[segment - 1]);
+      heartPoints.push({
+        x: lerp(outline[segment - 1].x, outline[segment].x, t) * ring.scale,
+        y: lerp(outline[segment - 1].y, outline[segment].y, t) * ring.scale
+      });
+    }
+  }
   images.forEach((src, i) => {
     const img = document.createElement("img");
     img.src = src; img.alt = "Ảnh kỷ niệm " + (i + 1);
-    img.style.setProperty("--tilt", (i % 2 ? 1.4 : -1.4) + "deg");
     $("collage").append(img);
   });
 
@@ -80,32 +98,32 @@
     dpr = Math.min(devicePixelRatio || 1, 1.75);
     canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    radius = Math.min(width * .29, height * .285, 230);
+    radius = Math.min(width * .29, height * .265, 218);
     if (rigidGlobe) rigidGlobe.resize(width, height, radius);
-    stars = Array.from({ length: width < 600 ? 125 : 260 }, () => ({
-      x: random() * width, y: random() * height, r: .35 + random() * 1.2,
-      depth: .2 + random(), phase: random() * TAU, alpha: .2 + random() * .6
+    stars = Array.from({ length: width < 600 ? 48 : 105 }, () => ({
+      x: random() * width, y: random() * height, r: .3 + random() * .8,
+      depth: .2 + random(), phase: random() * TAU, alpha: .12 + random() * .34
     }));
-    dust = Array.from({ length: width < 600 ? 80 : 155 }, () => ({
+    dust = Array.from({ length: width < 600 ? 32 : 65 }, () => ({
       x: random() * width, y: random() * height, vx: (random() - .5) * .25,
-      vy: (random() - .5) * .25, r: .5 + random() * 1.1, phase: random() * TAU
+      vy: (random() - .5) * .25, r: .4 + random() * .8, phase: random() * TAU
     }));
     if (ctx) {
       background = ctx.createRadialGradient(width * .5, height * .44, 0, width * .5, height * .44, Math.max(width, height) * .68);
-      background.addColorStop(0, "#25172e"); background.addColorStop(.35, "#130e20"); background.addColorStop(1, "#070611");
+      background.addColorStop(0, "#1b1523"); background.addColorStop(.35, "#100d18"); background.addColorStop(1, "#080710");
       makeTextPoints();
     }
   }
   function makeTextPoints() {
     const off = document.createElement("canvas"), ox = off.getContext("2d");
     if (!ox) return;
-    const fontSize = clamp(width * .06, 38, 76);
+    const fontSize = clamp(width * .052, 36, 64);
     off.width = Math.min(width, 950); off.height = 160;
     ox.font = "500 " + fontSize + "px Georgia"; ox.textAlign = "center"; ox.textBaseline = "middle";
     ox.fillStyle = "#fff"; ox.fillText("Gửi cô Nga", off.width / 2, 80);
     const data = ox.getImageData(0, 0, off.width, off.height).data;
     textPoints = [];
-    for (let y = 0; y < off.height; y += 4) for (let x = 0; x < off.width; x += 4) {
+    for (let y = 0; y < off.height; y += 5) for (let x = 0; x < off.width; x += 5) {
       if (data[(y * off.width + x) * 4 + 3] > 100) textPoints.push({
         x: width / 2 + x - off.width / 2, y: height / 2 - 28 + y - 80,
         fromX: random() * width, fromY: random() * height, phase: random() * TAU
@@ -127,6 +145,7 @@
   }
   function burst(x, y, count = 40, power = 1) {
     if (reduced) return;
+    count = Math.ceil(count * .6);
     for (let i = 0; i < count; i++) {
       const a = random() * TAU, speed = (.5 + random() * 3) * power;
       bursts.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
@@ -247,11 +266,11 @@
     pointer.type = e.pointerType; pointer.movedAt = now;
     pointer.speed = Math.min(45, Math.hypot(dx, dy));
     if (!reduced && !calm() && scene !== "restart" && (e.pointerType === "mouse" || e.buttons)) {
-      trails.push({ x: pointer.x, y: pointer.y, born: now, r: Math.min(3, 1 + pointer.speed / 14) });
-      if (trails.length > 100) trails.shift();
+      trails.push({ x: pointer.x, y: pointer.y, born: now, r: Math.min(2, .7 + pointer.speed / 22) });
+      if (trails.length > 48) trails.shift();
     }
     cursorStar.style.left = e.clientX + "px"; cursorStar.style.top = e.clientY + "px";
-    cursorStar.style.opacity = e.pointerType === "mouse" && !calm() ? ".9" : "0";
+    cursorStar.style.opacity = e.pointerType === "mouse" && !calm() ? ".75" : "0";
   }, { passive: true });
   document.addEventListener("pointerleave", () => { pointer.active = false; cursorStar.style.opacity = "0"; });
   document.addEventListener("pointerup", e => {
@@ -261,7 +280,7 @@
     if (reduced || calm() || scene === "restart") return;
     const x = e.detail === 0 ? width / 2 : e.clientX;
     const y = e.detail === 0 ? height / 2 : e.clientY;
-    rings.push({ x, y, born: performance.now() }); burst(x, y, 16, .7);
+    rings.push({ x, y, born: performance.now() }); burst(x, y, 10, .7);
   });
 
   function snapshot() { return tiles.map(tile => ({ ...tile.screen })); }
@@ -358,13 +377,13 @@
       opacity: smooth((z + .02) * 4), z: Math.round(200 + z * 100) };
   }
   function heartPosition(tile, i, now) {
-    const p = heartPoints[i % heartPoints.length];
+    const p = heartPoints[i];
     const r = Math.min(width * .27, height * .21, 225);
-    const wave = reduced ? 0 : Math.sin(now * .0006 + tile.float) * 2;
+    const wave = reduced ? 0 : Math.sin(now * .0006 + tile.float) * .8;
     const mx = pointer.active && !reduced ? (pointer.x / width - .5) * 12 : 0;
     return { x: width / 2 + p.x * r + mx,
       y: height * .32 + p.y * r + wave, scale: width < 600 ? .32 : .48,
-      stretch: 1, rotation: Math.sin(tile.float) * 8, opacity: .94, z: 100 + Math.round(p.y * 10) };
+      stretch: 1, rotation: Math.sin(tile.float) * 5, opacity: .94, z: 100 + Math.round(p.y * 10) };
   }
   function tunnelPosition(tile, i, progress, kind) {
     const travel = kind === "restart" ? Math.pow(progress, 2.25) * 5.5 : progress * 2;
@@ -481,48 +500,37 @@
         if (d.x < -20) d.x = width + 20; if (d.x > width + 20) d.x = -20;
         if (d.y < -20) d.y = height + 20; if (d.y > height + 20) d.y = -20;
       }
-      ctx.fillStyle = "rgba(234,170,207," + (.35 * quiet) + ")";
+    ctx.fillStyle = "rgba(234,190,211," + (.26 * quiet) + ")";
       ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, TAU); ctx.fill();
     });
     // A subtle galaxy arc behind the globe.
     ctx.save(); ctx.translate(width * .5, height * .44); ctx.rotate(-.32);
-    ctx.scale(1, .22); ctx.lineWidth = 1; ctx.strokeStyle = "#d8b7bc16";
+    ctx.scale(1, .22); ctx.lineWidth = 1; ctx.strokeStyle = "#d8b7bc0a";
     ctx.beginPath(); ctx.arc(0, 0, radius * 1.8, 0, TAU); ctx.stroke(); ctx.restore();
     if (reduced) return;
-    if (!calm() && scene !== "restart") {
-      for (let i = 0; i < 2; i++) {
-        const phase = (t * .13 + i * .53) % 1;
-        if (phase < .16) {
-          const p = phase / .16, x = width * (.2 + i * .5) + p * 230, y = height * .06 + p * 140;
-          const g = ctx.createLinearGradient(x - 100, y - 60, x, y);
-          g.addColorStop(0, "#ffffff00"); g.addColorStop(1, "#fff1e9bb");
-          ctx.strokeStyle = g; ctx.lineWidth = .8; ctx.beginPath(); ctx.moveTo(x - 100, y - 60); ctx.lineTo(x, y); ctx.stroke();
-        }
-      }
-    }
     trails = trails.filter(p => now - p.born < 650);
     trails.forEach((p, i) => {
       const life = 1 - (now - p.born) / 650;
-      ctx.fillStyle = "rgba(255,216,179," + life * .7 * quiet + ")";
+      ctx.fillStyle = "rgba(255,222,199," + life * .5 * quiet + ")";
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r * life, 0, TAU); ctx.fill();
       if (i > 0 && Math.hypot(p.x - trails[i - 1].x, p.y - trails[i - 1].y) < 100) {
-        ctx.strokeStyle = "rgba(255,204,187," + life * .32 * quiet + ")";
+        ctx.strokeStyle = "rgba(255,218,207," + life * .2 * quiet + ")";
         ctx.lineWidth = life * 1.8; ctx.beginPath(); ctx.moveTo(trails[i - 1].x, trails[i - 1].y); ctx.lineTo(p.x, p.y); ctx.stroke();
       }
     });
     if (pointer.active && !calm() && scene !== "restart") {
       const idle = smooth((now - pointer.movedAt - 350) / 800);
-      for (let i = 0; i < 5; i++) {
-        const a = t * (1.1 + i * .04) + i * TAU / 5, r = 18 + i * 4;
-        ctx.fillStyle = "rgba(255,221,178," + idle * .8 + ")";
+      for (let i = 0; i < 3; i++) {
+        const a = t * (1.1 + i * .04) + i * TAU / 3, r = 16 + i * 4;
+        ctx.fillStyle = "rgba(255,221,199," + idle * .5 + ")";
         ctx.beginPath(); ctx.arc(pointer.x + Math.cos(a) * r, pointer.y + Math.sin(a) * r * .65, 1.1, 0, TAU); ctx.fill();
       }
     }
     rings = rings.filter(r => now - r.born < 1000);
     rings.forEach(r => {
       const p = (now - r.born) / 1000;
-      ctx.strokeStyle = "rgba(247,188,212," + (1 - p) * .5 + ")";
-      ctx.lineWidth = 1 - p + .2; ctx.beginPath(); ctx.arc(r.x, r.y, 10 + ease(p) * 170, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = "rgba(247,205,221," + (1 - p) * .28 + ")";
+      ctx.lineWidth = .8 - p * .5; ctx.beginPath(); ctx.arc(r.x, r.y, 10 + ease(p) * 110, 0, TAU); ctx.stroke();
     });
     bursts = bursts.filter(b => b.life > 0);
     bursts.forEach(b => {
@@ -530,9 +538,6 @@
       ctx.fillStyle = "rgba(" + b.color + "," + Math.max(0, b.life) * quiet + ")";
       ctx.beginPath(); ctx.arc(b.x, b.y, b.r * Math.max(.1, b.life), 0, TAU); ctx.fill();
     });
-    if (scene === "globe" && now - lastFirework > 8000) {
-      lastFirework = now; burst(width * (.15 + random() * .7), height * (.12 + random() * .25), 22, .65);
-    }
     if (scene === "intro") {
       const elapsed = now - sceneStart, formation = ease(elapsed / 1700);
       const alpha = clamp(1 - (elapsed - 1500) / 800);
@@ -559,7 +564,7 @@
       intro.style.opacity = String(reduced ? 1 : smooth((elapsed - 1400) / 850));
       if (elapsed > (reduced ? 1700 : 5200)) {
         intro.style.opacity = "0"; setScene("globe", now); gallery.classList.add("visible");
-        envelope.classList.add("ready"); lastFirework = now;
+        envelope.classList.add("ready");
         if (!reduced) hint.classList.add("show");
         burst(width / 2, height * .44, 110, 1.8);
       }

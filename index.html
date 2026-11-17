@@ -9,11 +9,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="experience.css?v=1">
+<link rel="stylesheet" href="experience.css?v=3">
 <script src="js/three.js" defer></script>
 <script src="js/CSS3DRenderer.js" defer></script>
 <script src="globe-physics.js?v=2" defer></script>
-<script src="experience.js?v=2" defer></script>
+<script src="experience.js?v=3" defer></script>
 </head>
 <body data-scene="intro">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -28,28 +28,23 @@
 <canvas id="universe" aria-hidden="true"></canvas>
 <div class="scene-vignette" aria-hidden="true"></div>
 <header class="topbar">
-<span class="date-mark" aria-label="Ngày Nhà giáo Việt Nam 20 tháng 11"><span class="date-star">✧</span>20 <i>/</i> 11</span>
+<span class="date-mark" aria-label="Ngày Nhà giáo Việt Nam 20 tháng 11">20 <i>/</i> 11</span>
 <button id="music-button" class="icon-button music-button" aria-label="Bật nhạc" aria-pressed="false"><svg><use href="#icon-music"/></svg><span class="music-slash" aria-hidden="true"></span></button>
 </header>
 <main id="experience" aria-label="Món quà 20 tháng 11 dành tặng cô Nga">
 <section id="intro" class="intro" aria-label="Lời chào">
-<div class="intro-eyebrow">20 · 11</div>
 <h1>Gửi cô Nga<span>một bầu trời yêu thương.</span></h1>
-<div class="intro-flourish" aria-hidden="true"><span></span>✧<span></span></div>
 </section>
 <section id="gallery" class="gallery" aria-label="Những kỷ niệm" inert>
-<div class="orbit orbit-a" aria-hidden="true"></div>
-<div class="orbit orbit-b" aria-hidden="true"></div>
 <div id="globe" class="globe" role="group" aria-label="Kéo để xoay ảnh, chọn một ảnh để xem lớn"></div>
 <div id="gesture-hint" class="gesture-hint" aria-hidden="true"><svg><use href="#icon-hand"/></svg><span></span></div>
 <button id="envelope-button" class="envelope-button" aria-label="Mở thư dành tặng cô Nga" disabled>
 <span class="envelope-aura"></span>
 <span class="envelope-body"><span class="envelope-note">♡</span><span class="envelope-flap"></span><span class="envelope-pocket"></span><span class="envelope-seal">♥</span></span>
-<span class="envelope-spark spark-one">✧</span><span class="envelope-spark spark-two">✦</span>
 </button>
 </section>
 <section id="finale" class="finale" aria-label="Lời chúc" inert>
-<div class="finale-copy"><span class="finale-date">20 / 11</span><h2>Con chúc cô 20/11<br>sống mạnh khỏe,<br><em>gia đình vui vẻ ạ!</em></h2><span class="finale-heart" aria-hidden="true">♡</span></div>
+<div class="finale-copy"><h2>Con chúc cô 20/11<br>sống mạnh khỏe,<br><em>gia đình vui vẻ ạ!</em></h2></div>
 <button id="replay-button" class="icon-button replay-button" aria-label="Xem lại từ đầu" disabled><svg><use href="#icon-replay"/></svg></button>
 </section>
 </main>
@@ -66,7 +61,7 @@
 <button id="letter-close" class="icon-button dialog-close" aria-label="Đóng thư"><svg><use href="#icon-close"/></svg></button>
 <div id="letter-card" class="letter-card">
 <article id="letter-front" class="letter-face letter-front">
-<div class="letter-date">20 · 11</div><span class="letter-ornament" aria-hidden="true">✧</span>
+<div class="letter-date">20 · 11</div>
 <h2>Gửi cô Nga,</h2>
 <p>Con chúc cô 20/11 sống mạnh khỏe, gia đình vui vẻ ạ!</p>
 <div class="letter-flourish" aria-hidden="true">♡</div><span class="paper-corner" aria-hidden="true"></span>
