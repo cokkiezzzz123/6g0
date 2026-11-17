@@ -27,6 +27,7 @@
   let width = innerWidth, height = innerHeight, radius = 220, dpr = 1;
   let scene = "intro", sceneStart = performance.now(), lastFrame = sceneStart;
   let transition = null, restore = null, flashStart = 0, heartStart = 0;
+  let journey = null, flightTarget = { x: width / 2, y: height * .42 };
   let yaw = 0, pitch = -.12, yawVelocity = 0, pitchVelocity = 0;
   let pointer = { x: width / 2, y: height / 2, px: width / 2, py: height / 2, active: false, speed: 0, movedAt: 0, type: "mouse" };
   let drag = null, lastDragAt = -1000, hovered = -1, selectedPhoto = 0, flipped = false;
@@ -54,8 +55,13 @@
         y: -Math.cos(phi), z: Math.sin(phi) * Math.cos(theta),
         angle: random() * TAU, depth: random() * 2.8, float: random() * TAU,
         screen: { x: width / 2, y: height / 2, scale: 0, stretch: 1, rotation: 0, opacity: 0, z: 0 } };
-      button.addEventListener("pointerenter", () => { hovered = tiles.indexOf(tile); });
-      button.addEventListener("pointerleave", () => { hovered = -1; });
+      button.addEventListener("pointerenter", () => {
+        hovered = tiles.indexOf(tile);
+        tiles.forEach(other => other.el.classList.toggle("related", other.index === tile.index));
+      });
+      button.addEventListener("pointerleave", () => {
+        hovered = -1; tiles.forEach(other => other.el.classList.remove("related"));
+      });
       tiles.push(tile);
     }
   }
@@ -88,10 +94,39 @@
     }
   }
   images.forEach((src, i) => {
+    const button = document.createElement("button");
+    button.className = "collage-photo";
+    button.setAttribute("aria-label", "Xem ảnh kỷ niệm " + (i + 1));
     const img = document.createElement("img");
     img.src = src; img.alt = "Ảnh kỷ niệm " + (i + 1);
-    $("collage").append(img);
+    button.append(img);
+    button.addEventListener("click", () => showPhoto(i));
+    $("collage").append(button);
   });
+  if (window.GiftJourney) {
+    journey = new window.GiftJourney({
+      images,
+      reduced: () => reduced,
+      onNavigate: showJourney,
+      onHome: returnToGlobe,
+      onPhoto: showPhoto
+    });
+  } else {
+    $("ribbon-button").hidden = true;
+  }
+  function showJourney(stage) {
+    if (!journey) return;
+    endDrag(); transition = null; restore = null;
+    setScene(stage);
+    journey.enter(stage);
+    envelope.classList.toggle("ready", stage === "constellation");
+  }
+  function returnToGlobe() {
+    if (journey) journey.hide();
+    transition = null; restore = null;
+    setScene("globe");
+    $("ribbon-button").focus({ preventScroll: true });
+  }
 
   function resize() {
     width = innerWidth; height = innerHeight;
@@ -136,10 +171,19 @@
       rigidGlobe.setActive(false);
     }
     scene = next; sceneStart = now; document.body.dataset.scene = next;
+    if (journey) {
+      if (!["ribbon","wishes","constellation"].includes(next)) journey.hide();
+      journey.progress(next);
+    }
     intro.inert = next !== "intro";
     intro.setAttribute("aria-hidden", String(next !== "intro"));
-    gallery.inert = next !== "globe"; finale.inert = next !== "finale";
-    envelope.disabled = next !== "globe";
+    gallery.inert = !["globe","finale"].includes(next); finale.inert = next !== "finale";
+    const galleryVisible = ["globe","envelope","letter","sending","finale","restart"].includes(next);
+    gallery.classList.toggle("visible", galleryVisible);
+    gallery.style.visibility = galleryVisible ? "visible" : "hidden";
+    globe.setAttribute("aria-label", next === "finale" ? "Chọn một ảnh trong trái tim để xem lớn" : "Kéo để xoay ảnh, chọn một ảnh để xem lớn");
+    envelope.disabled = journey ? next !== "constellation" : next !== "globe";
+    $("ribbon-button").disabled = next !== "globe";
     replay.disabled = next !== "finale";
     if (next !== "globe") hint.classList.remove("show");
   }
@@ -154,7 +198,7 @@
     }
     if (bursts.length > 500) bursts.splice(0, bursts.length - 500);
   }
-  function calm() { return photoDialog.open || scene === "letter"; }
+  function calm() { return photoDialog.open || scene === "letter" || scene === "wishes"; }
   function updateMusicButton() {
     const playing = !audio.paused && !audio.ended;
     musicButton.setAttribute("aria-pressed", String(playing));
@@ -192,7 +236,8 @@
   });
 
   function showPhoto(index) {
-    if (scene !== "globe" || performance.now() - lastDragAt < 250) return;
+    if (!["globe","ribbon","wishes","constellation","letter","finale"].includes(scene)) return;
+    if (scene === "globe" && performance.now() - lastDragAt < 250) return;
     if (rigidGlobe) rigidGlobe.physics.stop();
     selectedPhoto = (index + images.length) % images.length;
     $("large-photo").src = images[selectedPhoto];
@@ -285,8 +330,11 @@
 
   function snapshot() { return tiles.map(tile => ({ ...tile.screen })); }
   function beginEnvelope() {
-    if (scene !== "globe" || transition) return;
+    if (!["globe","constellation"].includes(scene) || transition) return;
     endDrag();
+    if (scene === "constellation" && journey) {
+      tiles.forEach(tile => { tile.screen = journey.photoPose(tile.index); });
+    }
     const now = performance.now();
     transition = { kind: "envelope", start: now, duration: reduced ? 250 : 2400, from: snapshot() };
     burst(pointer.active ? pointer.x : width / 2, pointer.active ? pointer.y : height * .8, 80, 1.5);
@@ -305,6 +353,7 @@
   }
   $("flip-button").addEventListener("click", flipLetter);
   $("letter-card").addEventListener("click", e => {
+    if (e.target.closest(".collage-photo")) return;
     const rect = $("letter-card").getBoundingClientRect();
     if (e.clientX > rect.right - 60 && e.clientY > rect.bottom - 60) flipLetter();
   });
@@ -324,12 +373,21 @@
   letterDialog.addEventListener("cancel", e => { if (scene === "sending") e.preventDefault(); });
   letterDialog.addEventListener("close", () => {
     if (scene !== "letter") return;
+    if (journey) {
+      showJourney("constellation");
+      envelope.focus({ preventScroll: true });
+      return;
+    }
     restore = { start: performance.now(), from: snapshot() };
     setScene("globe"); envelope.classList.add("ready");
     envelope.focus({ preventScroll: true });
   });
   $("send-button").addEventListener("click", () => {
     if (scene !== "letter") return;
+    flightTarget = {
+      x: pointer.active ? clamp(pointer.x, width * .35, width * .65) : width / 2,
+      y: pointer.active ? clamp(pointer.y, height * .32, height * .46) : height * .4
+    };
     setScene("sending"); letterDialog.classList.add("sending");
     burst(width / 2, height / 2, 45);
   });
@@ -337,8 +395,23 @@
     plane.style.display = "none"; heartStart = now;
     transition = { kind: "heart", start: now, duration: reduced ? 250 : 2000, from: snapshot() };
     setScene("finale", now); finale.classList.add("visible");
-    gallery.inert = true; replay.disabled = true;
+    gallery.inert = false; replay.disabled = true;
     burst(width / 2, height * .32, 90, 1.2);
+  }
+  function flightPoint(progress) {
+    const rx = Math.min(width * .16, 150), ry = Math.min(height * .1, 92);
+    const start = { x: width / 2, y: height * .5 };
+    const orbitStart = { x: flightTarget.x + rx, y: flightTarget.y };
+    if (progress < .2) {
+      const t = smooth(progress / .2);
+      return { x: lerp(start.x, orbitStart.x, t), y: lerp(start.y, orbitStart.y, t) };
+    }
+    if (progress < .78) {
+      const angle = (progress - .2) / .58 * TAU;
+      return { x: flightTarget.x + Math.cos(angle) * rx, y: flightTarget.y + Math.sin(angle) * ry };
+    }
+    const t = ease((progress - .78) / .22);
+    return { x: lerp(orbitStart.x, width * .7, t), y: lerp(orbitStart.y, -100, t) };
   }
   replay.addEventListener("click", e => {
     if (scene !== "finale" || transition) return;
@@ -352,6 +425,7 @@
     transition = null; restore = null; heartStart = 0; flashStart = now;
     yaw = 0; pitch = -.12; yawVelocity = pitchVelocity = 0;
     if (rigidGlobe) rigidGlobe.physics.reset();
+    if (journey) journey.reset();
     trails = []; rings = []; bursts = [];
     gallery.classList.remove("visible"); finale.classList.remove("visible");
     envelope.classList.remove("ready");
@@ -405,7 +479,7 @@
     return out;
   }
   function renderTiles(now, dt, seconds) {
-    if (scene === "intro") return;
+    if (["intro","ribbon","wishes","constellation"].includes(scene)) return;
     if (rigidGlobe) {
       if (scene === "globe" && !photoDialog.open && !reduced) rigidGlobe.physics.step(seconds);
       else if (reduced) rigidGlobe.physics.stop();
@@ -453,7 +527,7 @@
         "deg) scale(" + (p.scale * p.stretch).toFixed(3) + "," + p.scale.toFixed(3) + ")";
       tile.el.style.opacity = p.opacity.toFixed(3);
       tile.el.style.zIndex = String(Math.round(p.z));
-      const interactive = scene === "globe" && p.opacity > .6;
+      const interactive = (scene === "globe" || (scene === "finale" && !transition)) && p.opacity > .6;
       tile.el.style.pointerEvents = interactive ? "auto" : "none";
       if (interactive && (!winners.has(tile.index) || p.z > winners.get(tile.index).screen.z)) winners.set(tile.index, tile);
     });
@@ -542,10 +616,33 @@
       const elapsed = now - sceneStart, formation = ease(elapsed / 1700);
       const alpha = clamp(1 - (elapsed - 1500) / 800);
       if (alpha > 0) textPoints.forEach(p => {
-        const x = lerp(p.fromX, p.x, formation), y = lerp(p.fromY, p.y, formation);
+        const bend = pointer.active ? 1 - formation : 0;
+        const x = lerp(p.fromX, p.x, formation) + (pointer.x - width / 2) * .035 * bend;
+        const y = lerp(p.fromY, p.y, formation) + (pointer.y - height / 2) * .035 * bend;
         ctx.fillStyle = "rgba(255,219,222," + alpha * .85 + ")";
         ctx.fillRect(x, y, 1.5, 1.5);
       });
+    }
+    if (scene === "sending" && !reduced) {
+      const elapsed = now - sceneStart;
+      if (elapsed > 4500) {
+        const reveal = clamp((elapsed - 4500) / 1000);
+        const fade = 1 - smooth((elapsed - 6500) / 500);
+        const size = clamp(width * .09, 48, 86), cy = height * .43;
+        ctx.save();
+        ctx.font = "italic " + size + "px 'Playfair Display', Georgia, serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        const textWidth = ctx.measureText("20/11").width;
+        ctx.beginPath(); ctx.rect(width / 2 - textWidth / 2 - 5, cy - size, (textWidth + 10) * reveal, size * 2); ctx.clip();
+        ctx.globalAlpha = fade * .9; ctx.fillStyle = "#ffe9d6";
+        ctx.shadowColor = "#e6b3c1"; ctx.shadowBlur = 15;
+        ctx.fillText("20/11", width / 2, cy);
+        ctx.restore();
+        if (reveal < 1) {
+          ctx.fillStyle = "rgba(255,230,199," + fade + ")";
+          ctx.beginPath(); ctx.arc(width / 2 - textWidth / 2 + textWidth * reveal, cy + Math.sin(reveal * Math.PI * 5) * 12, 2, 0, TAU); ctx.fill();
+        }
+      }
     }
     if (scene === "restart") {
       const p = clamp((now - sceneStart) / 4000);
@@ -574,15 +671,19 @@
       else restart(now);
     }
     if (scene === "sending") {
-      if (elapsed > (reduced ? 100 : 600)) {
+      const foldDuration = reduced ? 100 : 600;
+      const flightDuration = reduced ? 0 : 4800;
+      if (elapsed > foldDuration) {
         if (letterDialog.open) letterDialog.close();
-        plane.style.display = "block";
-        const progress = clamp((elapsed - (reduced ? 100 : 600)) / (reduced ? 150 : 1500));
-        const x = width / 2 + Math.sin(progress * Math.PI * 1.1) * width * .25;
-        const y = height * .5 - ease(progress) * height * .65;
-        plane.style.transform = "translate(" + (x - 32) + "px," + (y - 32) + "px) rotate(" + (-25 - progress * 45) + "deg) scale(" + (1 - progress * .5) + ")";
-        if (!reduced && progress < .95) trails.push({ x, y: y + 20, born: now, r: 2 });
-        if (progress >= 1) startFinale(now);
+        const progress = clamp((elapsed - foldDuration) / Math.max(1, flightDuration));
+        plane.style.display = reduced || progress >= 1 ? "none" : "block";
+        if (!reduced && progress < 1) {
+          const p = flightPoint(progress), next = flightPoint(Math.min(1, progress + .001));
+          const angle = Math.atan2(next.y - p.y, next.x - p.x) * 180 / Math.PI + 45;
+          plane.style.transform = "translate(" + (p.x - 32) + "px," + (p.y - 32) + "px) rotate(" + angle + "deg)";
+          trails.push({ x:p.x, y:p.y, born:now, r:1.6 });
+        }
+        if (elapsed >= foldDuration + flightDuration + (reduced ? 0 : 1600)) startFinale(now);
       }
     }
     if (transition && transition.kind === "heart" && now - heartStart > transition.duration) {
@@ -599,6 +700,7 @@
       if (progress === 1) flashStart = 0;
     }
     drawUniverse(now, dt); renderTiles(now, dt, seconds);
+    if (journey) journey.update(now, seconds, pointer);
     requestAnimationFrame(frame);
   }
   document.addEventListener("visibilitychange", () => {
@@ -610,6 +712,7 @@
       if (restore) restore.start += pause;
       if (flashStart) flashStart += pause;
       if (heartStart) heartStart += pause;
+      if (journey) journey.pause(pause);
       hiddenAt = 0; lastFrame = performance.now();
     }
   });

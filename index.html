@@ -9,11 +9,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="experience.css?v=3">
+<link rel="stylesheet" href="experience.css?v=4">
 <script src="js/three.js" defer></script>
 <script src="js/CSS3DRenderer.js" defer></script>
 <script src="globe-physics.js?v=2" defer></script>
-<script src="experience.js?v=3" defer></script>
+<script src="journey.js?v=4" defer></script>
+<script src="experience.js?v=4" defer></script>
 </head>
 <body data-scene="intro">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -24,6 +25,12 @@
 <symbol id="icon-plane" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9L2 9 22 2ZM11 13 22 2"/></symbol>
 <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
 <symbol id="icon-hand" viewBox="0 0 36 42"><path d="M13 21V6a3 3 0 0 1 6 0v12-5a3 3 0 0 1 6 0v6-3a3 3 0 0 1 6 0v8c0 8-5 13-12 13-5 0-7-2-10-6l-5-7c-2-3 2-6 4-3l5 5v-5Z"/></symbol>
+<symbol id="icon-stack" viewBox="0 0 24 24"><path d="m5 5 14-2 2 14M3 7h15v14H3z"/><path d="m4 17 4-4 3 3 3-2 3 3"/><circle cx="13" cy="11" r="1"/></symbol>
+<symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></symbol>
+<symbol id="icon-forward" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="icon-health" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/><path d="M4 12h4l2-4 3 8 2-4h5"/></symbol>
+<symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+<symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-8 9 8M5 9v12h14V9M9 21v-7h6v7"/></symbol>
 </svg>
 <canvas id="universe" aria-hidden="true"></canvas>
 <div class="scene-vignette" aria-hidden="true"></div>
@@ -38,15 +45,51 @@
 <section id="gallery" class="gallery" aria-label="Những kỷ niệm" inert>
 <div id="globe" class="globe" role="group" aria-label="Kéo để xoay ảnh, chọn một ảnh để xem lớn"></div>
 <div id="gesture-hint" class="gesture-hint" aria-hidden="true"><svg><use href="#icon-hand"/></svg><span></span></div>
+<div id="globe-controls" class="globe-controls">
+<button id="ribbon-button" class="icon-button album-button" aria-label="Mở dải ảnh và tiếp tục"><svg><use href="#icon-stack"/></svg><svg class="small-arrow"><use href="#icon-arrow"/></svg></button>
+</div>
 <button id="envelope-button" class="envelope-button" aria-label="Mở thư dành tặng cô Nga" disabled>
 <span class="envelope-aura"></span>
 <span class="envelope-body"><span class="envelope-note">♡</span><span class="envelope-flap"></span><span class="envelope-pocket"></span><span class="envelope-seal">♥</span></span>
 </button>
 </section>
+<section id="journey-shell" class="journey-shell" aria-label="Hành trình kỷ niệm" hidden inert>
+<section id="ribbon-scene" class="journey-view ribbon-scene" aria-label="Dải ảnh kỷ niệm" hidden inert>
+<div id="ribbon-stage" class="ribbon-stage" role="group" aria-label="Kéo để xem các ảnh kỷ niệm"></div>
+<button id="ribbon-prev" class="icon-button ribbon-nav ribbon-prev" aria-label="Ảnh trước trong dải ảnh"><svg><use href="#icon-arrow"/></svg></button>
+<button id="ribbon-next" class="icon-button ribbon-nav ribbon-next" aria-label="Ảnh tiếp theo trong dải ảnh"><svg><use href="#icon-arrow"/></svg></button>
+<div id="ribbon-count" class="ribbon-count" aria-live="polite">01 / 10</div>
+<nav class="journey-controls" aria-label="Chuyển cảnh">
+<button id="ribbon-home" class="icon-button" aria-label="Quay lại quả cầu"><svg><use href="#icon-globe"/></svg></button>
+<button id="ribbon-continue" class="icon-button chapter-next" aria-label="Tiếp tục đến những lời chúc"><svg><use href="#icon-forward"/></svg></button>
+</nav>
+</section>
+<section id="wishes-scene" class="journey-view wishes-scene" aria-label="Ba lời chúc dành tặng cô" hidden inert>
+<div id="wish-tilt" class="wish-tilt">
+<button id="wish-card" class="wish-card" aria-label="Lật lời chúc để xem ảnh" aria-pressed="false">
+<span id="wish-front" class="wish-face wish-front"><svg class="wish-icon" aria-hidden="true"><use id="wish-icon-use" href="#icon-health"/></svg><span id="wish-text" class="wish-text">Chúc cô luôn mạnh khỏe.</span><span class="wish-corner" aria-hidden="true"></span></span>
+<span id="wish-back" class="wish-face wish-back" aria-hidden="true"><img id="wish-photo" src="image/anh6.jpg" alt="Ảnh kỷ niệm cùng cô Nga"></span>
+</button>
+</div>
+<div id="wish-dots" class="wish-dots" role="group" aria-label="Chọn lời chúc"><button aria-label="Lời chúc thứ nhất" aria-pressed="true"></button><button aria-label="Lời chúc thứ hai" aria-pressed="false"></button><button aria-label="Lời chúc thứ ba" aria-pressed="false"></button></div>
+<nav class="journey-controls" aria-label="Chuyển lời chúc">
+<button id="wish-prev" class="icon-button back-arrow" aria-label="Lời chúc trước"><svg><use href="#icon-forward"/></svg></button>
+<button id="wish-flip" class="icon-button" aria-label="Lật lời chúc để xem ảnh"><svg><use href="#icon-flip"/></svg></button>
+<button id="wish-next" class="icon-button chapter-next" aria-label="Lời chúc tiếp theo"><svg><use href="#icon-forward"/></svg></button>
+</nav>
+</section>
+<section id="constellation-scene" class="journey-view constellation-scene" aria-label="Bầu trời kỷ niệm" hidden inert>
+<svg id="constellation-lines" class="constellation-lines" aria-hidden="true"></svg>
+<div id="constellation-photos" class="constellation-photos"></div>
+<div id="constellation-spark" class="constellation-spark" aria-hidden="true"></div>
+<nav class="journey-controls constellation-controls" aria-label="Chuyển cảnh"><button id="constellation-back" class="icon-button back-arrow" aria-label="Quay lại những lời chúc"><svg><use href="#icon-forward"/></svg></button></nav>
+</section>
+</section>
 <section id="finale" class="finale" aria-label="Lời chúc" inert>
 <div class="finale-copy"><h2>Con chúc cô 20/11<br>sống mạnh khỏe,<br><em>gia đình vui vẻ ạ!</em></h2></div>
 <button id="replay-button" class="icon-button replay-button" aria-label="Xem lại từ đầu" disabled><svg><use href="#icon-replay"/></svg></button>
 </section>
+<div id="journey-progress" class="journey-progress" aria-hidden="true" hidden><span></span><span></span><span></span><span></span><span></span><span></span></div>
 </main>
 <div id="flight-plane" class="flight-plane" aria-hidden="true"><svg><use href="#icon-plane"/></svg></div>
 <div id="portal-flash" class="portal-flash" aria-hidden="true"></div>

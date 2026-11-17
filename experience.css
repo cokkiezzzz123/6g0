@@ -7,6 +7,149 @@
   font-family: "Be Vietnam Pro",sans-serif
 }
 
+[hidden] { display: none !important; }
+
+.globe-controls {
+  position: absolute;
+  left: 50%;
+  bottom: max(7vh, 56px);
+  transform: translateX(-50%);
+  z-index: 650;
+}
+.icon-button.album-button { width: 82px; gap: 9px; border-radius: 28px; }
+.album-button .small-arrow { width: 13px; height: 18px; opacity: .6; }
+body:not([data-scene="globe"]) .globe-controls { display: none; }
+.photo-tile.related { box-shadow: 0 0 0 1px #f0d1d7, 0 0 15px #e2afc459; filter: brightness(1.08); }
+.journey-shell { position: absolute; inset: 0; z-index: 700; }
+.journey-view { position: absolute; inset: 0; animation: chapter-enter .65s var(--ease); }
+@keyframes chapter-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.journey-controls {
+  position: absolute;
+  left: 50%;
+  bottom: max(7vh, 56px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+.icon-button.chapter-next { color: #f1dfd0; border-color: #d9b5c647; }
+.back-arrow svg { transform: rotate(180deg); }
+.journey-progress {
+  position: absolute;
+  left: 50%;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 9px;
+  z-index: 900;
+  pointer-events: none;
+}
+.journey-progress span { width: 3px; height: 3px; border-radius: 50%; background: #cdb7c238; transition: background .4s, transform .4s; }
+.journey-progress span.active { background: #e4bbc9; transform: scale(1.5); }
+.ribbon-stage { position: absolute; inset: 0; perspective: 1200px; touch-action: none; user-select: none; }
+.ribbon-photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 4px solid #f5eae1;
+  border-radius: 3px;
+  padding: 0;
+  background: #16111c;
+  box-shadow: 0 18px 50px #0004;
+  overflow: hidden;
+  cursor: zoom-in;
+  touch-action: none;
+  will-change: transform;
+}
+.ribbon-photo img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.ribbon-photo:hover { border-color: #ffe8da; }
+.ribbon-nav { position: absolute; top: calc(43% - 22px); z-index: 20; }
+.ribbon-prev { left: max(24px, calc(50% - 440px)); }
+.ribbon-prev svg { transform: rotate(180deg); }
+.ribbon-next { right: max(24px, calc(50% - 440px)); }
+.ribbon-count { position: absolute; top: 72%; width: 100%; text-align: center; color: #bcacbc; font-size: 10px; letter-spacing: .25em; pointer-events: none; }
+.wish-tilt {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(360px, calc(100vw - 88px));
+  height: min(420px, 55vh);
+  perspective: 1300px;
+  transform: translate(-50%,-50%);
+  transform-style: preserve-3d;
+}
+.wish-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6a4d58;
+  transform-style: preserve-3d;
+  transition: transform .75s var(--ease);
+  cursor: pointer;
+}
+.wish-card.flipped { transform: rotateY(180deg); }
+.wish-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 20px 60px #0004;
+  overflow: hidden;
+}
+.wish-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; padding: 38px; background: #fff2e9; border: 1px solid #fff8f0; }
+.wish-front:before { content: ""; position: absolute; inset: 14px; border: 1px solid #c6a1aa42; border-radius: 2px; pointer-events: none; }
+.wish-icon { width: 42px; height: 42px; stroke: #b67e94; stroke-width: 1.1; }
+.wish-text { font-family: "Playfair Display",Georgia,serif; font-size: clamp(25px,3vw,31px); font-weight: 500; line-height: 1.55; }
+.wish-corner { position: absolute; bottom: 0; right: 0; width: 25px; height: 25px; background: linear-gradient(135deg,#f2d7d5 49%,#cb9caa 50%,transparent 54%); }
+.wish-back { padding: 10px; background: #fff2e9; transform: rotateY(180deg); cursor: zoom-in; }
+.wish-back img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
+.wish-dots { position: absolute; top: 76%; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; }
+.wish-dots button { width: 26px; height: 26px; background: none; border: 0; padding: 0; display: grid; place-items: center; cursor: pointer; }
+.wish-dots button:before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: #a589a06b; transition: background .25s, transform .25s; }
+.wish-dots button[aria-pressed="true"]:before { background: #e4bdcb; transform: scale(1.45); }
+.constellation-lines { position: absolute; inset: 0; width: 100%; height: 100%; stroke: #debaca40; stroke-width: .8; fill: none; pointer-events: none; }
+.constellation-lines line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.constellation-photos { position: absolute; inset: 0; pointer-events: none; }
+.star-photo { position: absolute; left: 0; top: 0; padding: 2px; background: #eadfdb; border: 0; border-radius: 2px; box-shadow: 0 0 17px #e3aecb13; cursor: zoom-in; pointer-events: auto; z-index: 5; }
+.star-photo img { width: 100%; height: 100%; display: block; object-fit: cover; pointer-events: none; }
+.star-photo:hover,.star-photo:focus-visible { box-shadow: 0 0 0 1px #f0d3ce,0 0 24px #e4b7cc5c; }
+.constellation-spark { position: absolute; left: 0; top: 0; width: 6px; height: 6px; border-radius: 50%; background: #ffe3bd; box-shadow: 0 0 12px #ffd4a9,0 0 24px #ebb8ce; pointer-events: none; z-index: 2; }
+.constellation-scene .envelope-button { top: calc(46% - 50px); bottom: auto; z-index: 10; }
+.constellation-controls { bottom: max(7vh,56px); }
+.collage-photo { display: block; border: 0; padding: 0; min-width: 0; min-height: 0; background: none; cursor: zoom-in; overflow: hidden; }
+.collage > :first-child,.collage > :last-child { grid-column: span 2; }
+.collage-photo:focus-visible { outline-offset: 2px; }
+.collage-photo img { pointer-events: none; }
+body[data-scene="letter"] .journey-progress,body[data-scene="sending"] .journey-progress { display: none; }
+@media(max-width:600px) {
+  .ribbon-photo { border-width: 3px; }
+  .ribbon-prev { left: 14px; }
+  .ribbon-next { right: 14px; }
+  .ribbon-nav { width: 34px; height: 34px; top: calc(43% - 17px); }
+  .ribbon-nav svg { width: 18px; }
+  .wish-front { padding: 29px; gap: 25px; }
+  .wish-text { font-size: 26px; }
+  .constellation-scene .envelope-button { transform: translateX(-50%) scale(.9); }
+}
+@media(max-height:600px) {
+  .globe-controls,.journey-controls { bottom: 40px; }
+  .journey-progress { bottom: 15px; }
+  .wish-tilt { top: 41%; height: min(290px,calc(100dvh - 170px)); width: min(320px,calc(100vw - 100px)); }
+  .wish-front { padding: 24px; gap: 14px; }
+  .wish-icon { width: 26px; height: 26px; }
+  .wish-text { font-size: 22px; line-height: 1.4; }
+  .wish-dots { top: auto; bottom: 91px; }
+  .ribbon-count { top: 70%; }
+}
+
 * {
   box-sizing: border-box
 }
