@@ -1465,9 +1465,40 @@ body[data-scene="letter"] .cursor-star {
  .letter-dialog[data-page="collage"] .collage-photo,.letter-dialog[data-page="collage"] .send-button { animation:none!important; }
 }
 
+/* Brighter sky with softer movement and consistent opening timings. */
+.scene-vignette { background:radial-gradient(ellipse at 50% 44%,transparent 28%,#05030c66 100%); }
+.icon-button { transition:transform .32s cubic-bezier(.22,.72,.18,1),background .35s,border-color .35s,box-shadow .4s; }
+.icon-button:active { transform:scale(.96); }
+.memory-photo { transition:border-color .45s,box-shadow .45s; }
+.memory-photo:hover { box-shadow:0 24px 80px #0005,0 0 22px #e5c3d411; }
+.gratitude-card { transition:border-color .45s,box-shadow .45s; }
+.gratitude-card:hover { border-color:#d9b4c45e; box-shadow:0 25px 100px #0004,0 0 28px #e3bfca0c; }
+.envelope-button .envelope-flap { transition:transform .65s cubic-bezier(.22,.72,.18,1); }
+.envelope-button .envelope-note { transition:transform .65s cubic-bezier(.22,.72,.18,1); }
+.envelope-button:hover .envelope-note,.envelope-button:focus-visible .envelope-note { transform:translate3d(0,-13px,0); }
+.is-opening .envelope-body { animation:gift-release-smooth 2.8s cubic-bezier(.3,0,.2,1) both; will-change:transform,opacity; }
+.is-opening .envelope-seal { animation:seal-release-smooth .7s cubic-bezier(.22,.72,.18,1) both; }
+.is-opening .envelope-flap { z-index:1; animation:flap-release-smooth 1.05s .08s cubic-bezier(.22,.72,.18,1) both; will-change:transform; }
+.is-opening .envelope-note { animation:paper-rise-smooth 2.1s .35s cubic-bezier(.22,.72,.18,1) both; will-change:transform,opacity; }
+.is-opening .gift-reveal-glow { animation:gift-bloom 2.8s ease-in-out both; }
+@keyframes seal-release-smooth { from {opacity:1;transform:scale(1);} to {opacity:0;transform:scale(1.65);} }
+@keyframes flap-release-smooth { from {transform:var(--flap-start,rotateX(0deg));} to {transform:rotateX(180deg);} }
+@keyframes paper-rise-smooth { 0% {transform:var(--note-start,translate3d(0,0,0));opacity:1;} 65% {transform:translate3d(0,-96px,0) scale(1.1);opacity:1;} 100% {transform:translate3d(0,-128px,0) scale(1.65);opacity:0;} }
+@keyframes gift-release-smooth { 0% {transform:var(--body-start,translate3d(0,0,0));opacity:1;} 35% {transform:translate3d(0,8px,0);opacity:1;} 80% {transform:translate3d(0,55px,0) scale(.97);opacity:.7;} 100% {transform:translate3d(0,78px,0) scale(.94);opacity:0;} }
+.letter-card { transition:transform .95s cubic-bezier(.22,.72,.18,1); }
+.letter-dialog[open] .letter-card { will-change:transform; }
+.letter-dialog { animation:letter-arrival-smooth .8s cubic-bezier(.22,.72,.18,1); }
+.letter-stack { transition:transform .95s cubic-bezier(.22,.72,.18,1); }
+.letter-dialog[data-page="collage"] .collage-photo { animation-timing-function:cubic-bezier(.22,.72,.18,1); }
+@keyframes letter-arrival-smooth { from {opacity:0;transform:translate3d(0,22px,0) scale(.975);} to {opacity:1;transform:translate3d(0,0,0) scale(1);} }
+@media(prefers-reduced-motion:reduce) {
+ .is-opening .envelope-body,.is-opening .envelope-seal,.is-opening .envelope-flap,.is-opening .envelope-note,.is-opening .gift-reveal-glow,.letter-dialog { animation:none!important; }
+ .letter-card,.letter-stack,.icon-button,.memory-photo,.gratitude-card { transition:none!important; }
+}
+
 </style>
 </head>
-<body data-scene="intro" data-navigation="envelope-v4">
+<body data-scene="intro" data-navigation="bright-smooth-v5">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 17V5l12-2v12M9 8l12-2"/><ellipse cx="6" cy="17" rx="3" ry="2.5"/><ellipse cx="18" cy="15" rx="3" ry="2.5"/></symbol>
 <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -46628,7 +46659,7 @@ document.addEventListener("DOMContentLoaded", function () {
   class Journey {
     constructor(options) {
       this.options = options; this.images = options.images; this.memories = options.memories;
-      this.memoryIndex = 0; this.noteIndex = 0;
+      this.memoryIndex = 0; this.noteIndex = 0; this.wishTilt = {x:0,y:0};
       this.notes = [
         { title:"Vì những điều cô dạy.", text:"Một bài học hay không chỉ nằm trong trang vở. Con mong mình sẽ nhớ cả cách cố gắng, cách lắng nghe và cách đối xử tử tế với mọi người." },
         { title:"Vì sự kiên nhẫn.", text:"Có những điều con hiểu ngay, có những điều cần thêm thời gian. Con biết ơn vì trên hành trình học tập ấy luôn có sự hướng dẫn của cô." },
@@ -46789,9 +46820,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
     refreshCard(id) {
-      if (!this.options.reduced() && $(id).animate) $(id).animate(
-        [{opacity:.2,transform:"translateY(10px)"},{opacity:1,transform:"translateY(0)"}],
-        {duration:500,easing:"cubic-bezier(.2,.75,.2,1)"});
+      const card=$(id);
+      if (!this.options.reduced() && card.animate) {
+        card.getAnimations().forEach(animation=>animation.cancel());
+        card.animate([{opacity:.65,transform:"translate3d(0,6px,0)"},{opacity:1,transform:"translate3d(0,0,0)"}],
+          {duration:550,easing:"cubic-bezier(.22,.72,.18,1)"});
+      }
     }
     setMemory(index) {
       this.memoryIndex = clamp(index,0,this.memories.length-1);
@@ -46920,7 +46954,9 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (this.stage === "wishes") {
         const x = reduced || !pointer.active ? 0 : (pointer.x / innerWidth - .5) * 6;
         const y = reduced || !pointer.active ? 0 : (pointer.y / innerHeight - .5) * -5;
-        $("wish-tilt").style.transform = "translate(-50%,-50%) rotateX(" + y + "deg) rotateY(" + x + "deg)";
+        const follow=reduced ? 1 : 1-Math.exp(-seconds/.14);
+        this.wishTilt.x=lerp(this.wishTilt.x,x,follow); this.wishTilt.y=lerp(this.wishTilt.y,y,follow);
+        $("wish-tilt").style.transform = "translate(-50%,-50%) rotateX(" + this.wishTilt.y + "deg) rotateY(" + this.wishTilt.x + "deg)";
       } else if (this.stage === "constellation") {
         if (this.layoutWidth !== innerWidth || this.layoutHeight !== innerHeight) this.layoutConstellation();
         this.starCards.forEach((card,i) => {
@@ -46994,7 +47030,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let drag = null, lastDragAt = -1000, hovered = -1, selectedPhoto = 0, flipped = false;
   let activated = false, musicWanted = false, musicAttempt = 0, hiddenAt = 0;
   let stars = [], dust = [], bursts = [], rings = [], trails = [], textPoints = [];
-  let background;
+  let background, starGlow;
+  const skyPointer = {x:0,y:0};
   const tiles = [], heartPoints = [];
   const photoUse = images.map(() => 0);
 
@@ -47153,11 +47190,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     radius = Math.min(width * .335, height * (height < 600 ? .245 : .285), 265);
     if (rigidGlobe) rigidGlobe.resize(width, height, radius);
-    stars = Array.from({ length: width < 600 ? 48 : 105 }, () => ({
-      x: random() * width, y: random() * height, r: .3 + random() * .8,
-      depth: .2 + random(), phase: random() * TAU, alpha: .12 + random() * .34
+    const starCount = width < 600 ? 180 : Math.round(clamp(width * height / 3000,220,420));
+    stars = Array.from({ length:starCount }, (_,i) => ({
+      x:random()*width, y:random()*height,
+      r:i%12===0 ? 1.2+random()*.75 : .45+random()*.7,
+      depth:.2+random(), phase:random()*TAU,
+      alpha:i%12===0 ? .8+random()*.18 : .32+random()*.55,
+      bright:i%12===0, color:random()>.25 ? "225,237,255" : "255,226,194"
     }));
-    dust = Array.from({ length: width < 600 ? 32 : 65 }, () => ({
+    canvas.dataset.starCount = String(starCount);
+    // Draw the halo once, then reuse this small sprite for the brighter stars.
+    starGlow = document.createElement("canvas"); starGlow.width=starGlow.height=48;
+    const glowContext = starGlow.getContext("2d");
+    if (glowContext) {
+      const glow = glowContext.createRadialGradient(24,24,0,24,24,24);
+      glow.addColorStop(0,"#fff9ebd9"); glow.addColorStop(.12,"#eef5ff8c");
+      glow.addColorStop(.4,"#b9d8ff24"); glow.addColorStop(1,"#b9d8ff00");
+      glowContext.fillStyle=glow;glowContext.fillRect(0,0,48,48);
+    }
+    dust = Array.from({ length: width < 600 ? 48 : 90 }, () => ({
       x: random() * width, y: random() * height, vx: (random() - .5) * .25,
       vy: (random() - .5) * .25, r: .4 + random() * .8, phase: random() * TAU
     }));
@@ -47374,10 +47425,15 @@ document.addEventListener("DOMContentLoaded", function () {
       tiles.forEach(tile => { tile.screen = journey.photoPose(tile.index); });
     }
     const now = performance.now();
-    transition = { kind: "envelope", start: now, duration: reduced ? 250 : 2400, from: snapshot() };
+    transition = { kind: "envelope", start: now, duration: reduced ? 250 : 2800, from: snapshot() };
     burst(pointer.active ? pointer.x : width / 2, pointer.active ? pointer.y : height * .8, 80, 1.5);
     // Keep the real envelope visible after the constellation becomes inert.
     const reveal = $("envelope-reveal");
+    // Start where hover/floating actually left each part; no snap on reparenting.
+    for (const [part,name] of [[".envelope-flap","--flap-start"],[".envelope-note","--note-start"],[".envelope-body","--body-start"]]) {
+      const current = getComputedStyle(envelope.querySelector(part)).transform;
+      envelope.style.setProperty(name,current === "none" ? "translate3d(0,0,0)" : current);
+    }
     reveal.append(envelope); reveal.hidden = false;
     reveal.classList.add("is-opening");
     envelope.classList.remove("ready"); setScene("envelope", now);
@@ -47392,7 +47448,7 @@ document.addEventListener("DOMContentLoaded", function () {
       {opacity:0,transform:"translateX(-110%) skewX(-18deg)"},
       {opacity:.55,offset:.45},
       {opacity:0,transform:"translateX(110%) skewX(-18deg)"}
-    ],{duration:950,easing:"ease-out"});
+    ],{duration:1050,easing:"cubic-bezier(.22,.72,.18,1)"});
     $("letter-front").inert = flipped; $("letter-back").inert = !flipped;
     $("letter-front").setAttribute("aria-hidden", String(flipped));
     $("letter-back").setAttribute("aria-hidden", String(!flipped));
@@ -47648,19 +47704,31 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!ctx) return;
     const quiet = calm() ? .25 : 1, t = now * .001;
     ctx.globalAlpha = 1; ctx.fillStyle = background; ctx.fillRect(0, 0, width, height);
-    const nx = pointer.active && !reduced ? pointer.x / width - .5 : 0;
-    const ny = pointer.active && !reduced ? pointer.y / height - .5 : 0;
+    const targetX = pointer.active && !reduced ? pointer.x / width - .5 : 0;
+    const targetY = pointer.active && !reduced ? pointer.y / height - .5 : 0;
+    const skyFollow = reduced ? 1 : 1-Math.exp(-dt/8);
+    skyPointer.x=lerp(skyPointer.x,targetX,skyFollow); skyPointer.y=lerp(skyPointer.y,targetY,skyFollow);
+    const nx=skyPointer.x, ny=skyPointer.y;
     const warp = scene === "restart" && !reduced ? clamp((now - sceneStart) / 4000) : 0;
     stars.forEach(star => {
       const x = star.x - nx * star.depth * 22, y = star.y - ny * star.depth * 16;
-      const alpha = reduced ? star.alpha : star.alpha * (.7 + .3 * Math.sin(t * .9 + star.phase));
-      ctx.fillStyle = "rgba(255,234,226," + alpha + ")";
+      const alpha = reduced ? star.alpha : star.alpha * (.87 + .13 * Math.sin(t * .65 + star.phase));
+      ctx.fillStyle = "rgba(" + star.color + "," + alpha + ")";
       if (warp > .2) {
         const dx = x - width / 2, dy = y - height / 2;
         ctx.strokeStyle = "rgba(255,226,214," + alpha * warp + ")";
         ctx.lineWidth = star.r * .7; ctx.beginPath(); ctx.moveTo(x, y);
         ctx.lineTo(x + dx * warp * warp * .17, y + dy * warp * warp * .17); ctx.stroke();
-      } else { ctx.beginPath(); ctx.arc(x, y, star.r, 0, TAU); ctx.fill(); }
+      } else {
+        if (star.bright) {
+          const size=star.r*10;
+          ctx.globalAlpha=alpha*.65;ctx.drawImage(starGlow,x-size/2,y-size/2,size,size);ctx.globalAlpha=1;
+          ctx.strokeStyle="rgba("+star.color+","+alpha*.34+")";ctx.lineWidth=.65;
+          ctx.beginPath();ctx.moveTo(x-star.r*2.7,y);ctx.lineTo(x+star.r*2.7,y);
+          ctx.moveTo(x,y-star.r*2.7);ctx.lineTo(x,y+star.r*2.7);ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(x, y, star.r, 0, TAU); ctx.fill();
+      }
     });
     dust.forEach(d => {
       if (!reduced) {
@@ -47678,7 +47746,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (d.x < -20) d.x = width + 20; if (d.x > width + 20) d.x = -20;
         if (d.y < -20) d.y = height + 20; if (d.y > height + 20) d.y = -20;
       }
-    ctx.fillStyle = "rgba(234,190,211," + (.26 * quiet) + ")";
+    ctx.fillStyle = "rgba(234,190,211," + (.36 * quiet) + ")";
       ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, TAU); ctx.fill();
     });
     // A subtle galaxy arc behind the globe.
