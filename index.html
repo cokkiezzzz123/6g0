@@ -1314,9 +1314,17 @@ body[data-scene="letter"] .cursor-star {
 
 .letter-front { overflow-x:hidden; }
 
+/* A gentle tap hint replaces the old swipe-to-progress hint. */
+#experience { outline:none; }
+#experience:focus-visible { outline:1px solid #e4bdcb66; outline-offset:-8px; }
+.journey-view, .letter-card, .intro, .finale { cursor:pointer; }
+.chapter-copy { cursor:inherit; }
+.swipe-cue { animation:tap-demo 1.8s ease-in-out 3 forwards; }
+@keyframes tap-demo { 0%,100% { opacity:0; transform:scale(1); } 25%,65% {opacity:.65;} 45% { opacity:.85; transform:scale(.85); } }
+
 </style>
 </head>
-<body data-scene="intro">
+<body data-scene="intro" data-navigation="click-v2">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 17V5l12-2v12M9 8l12-2"/><ellipse cx="6" cy="17" rx="3" ry="2.5"/><ellipse cx="18" cy="15" rx="3" ry="2.5"/></symbol>
 <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -1341,12 +1349,12 @@ body[data-scene="letter"] .cursor-star {
 <span class="date-mark" aria-label="Ngày Nhà giáo Việt Nam 20 tháng 11">20 <i>/</i> 11</span>
 <div class="topbar-actions"><button id="fullscreen-button" class="icon-button" aria-label="Xem toàn màn hình" aria-pressed="false"><svg><use href="#icon-fullscreen"/></svg></button><button id="music-button" class="icon-button music-button" aria-label="Bật nhạc" aria-pressed="false"><svg><use href="#icon-music"/></svg><span class="music-slash" aria-hidden="true"></span></button></div>
 </header>
-<main id="experience" aria-label="Món quà 20 tháng 11 dành tặng cô Nga">
+<main id="experience" tabindex="0" aria-label="Món quà 20 tháng 11 dành tặng cô Nga. Nhấp hoặc chạm để tiếp tục.">
 <section id="intro" class="intro" aria-label="Lời chào">
 <h1>Gửi cô Nga<span>một bầu trời yêu thương.</span></h1>
 </section>
 <section id="gallery" class="gallery" aria-label="Những kỷ niệm" inert>
-<div id="globe" class="globe" role="group" aria-label="Kéo để xoay ảnh, chọn một ảnh để xem lớn"></div>
+<div id="globe" class="globe" role="group" aria-label="Nhấp để tiếp tục, hoặc kéo để xoay quả cầu"></div>
 <div id="gesture-hint" class="gesture-hint" aria-hidden="true"><svg><use href="#icon-hand"/></svg><span></span></div>
 <div id="globe-controls" class="globe-controls" role="group" aria-label="Điều khiển quả cầu">
 <button id="zoom-out" class="icon-button globe-tool" aria-label="Thu nhỏ quả cầu"><svg><use href="#icon-minus"/></svg></button>
@@ -1364,7 +1372,7 @@ body[data-scene="letter"] .cursor-star {
 <section id="ribbon-scene" class="journey-view ribbon-scene" aria-label="Dải ảnh kỷ niệm" hidden inert>
 <p class="chapter-copy">Có những khoảnh khắc nhỏ, khi nhớ lại vẫn thấy thật vui.</p>
 <div class="swipe-cue" aria-hidden="true"><svg><use href="#icon-hand"/></svg></div>
-<div id="ribbon-stage" class="ribbon-stage" role="group" aria-label="Kéo để xem các ảnh kỷ niệm"></div>
+<div id="ribbon-stage" class="ribbon-stage" role="group" aria-label="Nhấp để đến những lời chúc, hoặc kéo để xem ảnh"></div>
 <button id="ribbon-prev" hidden class="icon-button ribbon-nav ribbon-prev" aria-label="Ảnh trước trong dải ảnh"><svg><use href="#icon-arrow"/></svg></button>
 <button id="ribbon-next" hidden class="icon-button ribbon-nav ribbon-next" aria-label="Ảnh tiếp theo trong dải ảnh"><svg><use href="#icon-arrow"/></svg></button>
 <div id="ribbon-count" class="ribbon-count" aria-live="polite">01 / 10</div>
@@ -1413,7 +1421,7 @@ body[data-scene="letter"] .cursor-star {
 </dialog>
 <dialog id="letter-dialog" class="letter-dialog" aria-label="Lá thư dành tặng cô Nga">
 <button id="letter-close" class="icon-button dialog-close" aria-label="Khép thư và thả lời chúc"><svg><use href="#icon-close"/></svg></button>
-<div id="letter-card" class="letter-card" role="group" aria-label="Lá thư, vuốt ngang hoặc chạm góc giấy để lật">
+<div id="letter-card" class="letter-card" role="group" aria-label="Lá thư. Nhấp để xem ảnh kỷ niệm.">
 <article id="letter-front" class="letter-face letter-front">
 <div class="letter-date">20 · 11</div>
 <h2>Gửi cô Nga,</h2>
@@ -46482,7 +46490,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.images.forEach((src, i) => {
         const button = document.createElement("button");
         button.className = "ribbon-photo";
-        button.setAttribute("aria-label", "Xem ảnh kỷ niệm " + (i + 1));
+        button.setAttribute("aria-label", "Ảnh kỷ niệm " + (i + 1) + ". Nhấp để đến những lời chúc.");
         const img = document.createElement("img");
         img.src = src; img.alt = ""; img.draggable = false;
         button.append(img); $("ribbon-stage").append(button);
@@ -46496,7 +46504,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const star = document.createElement("button");
         star.className = "star-photo";
-        star.setAttribute("aria-label", "Xem ảnh kỷ niệm " + (i + 1));
+        star.setAttribute("aria-label", "Ảnh kỷ niệm " + (i + 1) + ". Nhấp để mở thư.");
         const starImg = document.createElement("img");
         starImg.src = src; starImg.alt = ""; starImg.draggable = false;
         star.append(starImg); $("constellation-photos").append(star);
@@ -46581,21 +46589,6 @@ document.addEventListener("DOMContentLoaded", function () {
           e.preventDefault(); this.slide(e.key === "ArrowLeft" ? -1 : 1);
         }
       });
-      let wishSwipe = null;
-      const card = $("wish-card");
-      card.addEventListener("pointerdown", e => { wishSwipe = { id:e.pointerId, x:e.clientX, y:e.clientY }; card.setPointerCapture(e.pointerId); });
-      card.addEventListener("pointerup", e => {
-        if (!wishSwipe || wishSwipe.id !== e.pointerId) return;
-        const dx = e.clientX - wishSwipe.x, dy = e.clientY - wishSwipe.y; wishSwipe = null;
-        if (Math.abs(dx) > 45 && Math.abs(dy) < 65) {
-          this.suppressWishClick = true;
-          if (this.flipped) this.nextWish(); else this.flipWish();
-        }
-      });
-      card.addEventListener("pointercancel", () => { wishSwipe = null; });
-      card.addEventListener("click", e => {
-        if (this.suppressWishClick) { this.suppressWishClick = false; e.stopImmediatePropagation(); }
-      }, true);
       addEventListener("blur", () => this.finishDrag());
     }
     distance(index, position) {
@@ -46608,15 +46601,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const target = Math.round(this.target + amount);
       this.target = clamp(target, 0, this.images.length - 1);
       if (this.options.reduced()) this.position = this.target;
-      this.options.cancelAction();
-      if (target >= this.images.length - 1 && amount > 0) {
-        this.options.onAction(() => { this.setWish(0); this.options.onNavigate("wishes"); }, target >= this.images.length ? .5 : 2.2);
-      }
     }
     photoViewed(index) {
       this.target = this.position = index;
-      if (index === this.images.length - 1)
-        this.options.onAction(() => { this.setWish(0); this.options.onNavigate("wishes"); }, .6);
+
     }
     nextWish() {
       if (this.stage !== "wishes") return;
@@ -46624,7 +46612,6 @@ document.addEventListener("DOMContentLoaded", function () {
       else this.options.onNavigate("constellation");
     }
     setWish(index) {
-      this.options.cancelAction();
       this.wishIndex = clamp(index, 0, 2); this.flipped = false;
       const wish = this.wishes[this.wishIndex];
       $("wish-text").textContent = wish.text;
@@ -46640,13 +46627,11 @@ document.addEventListener("DOMContentLoaded", function () {
     flipWish() {
       if (this.stage !== "wishes") return;
       this.flipped = !this.flipped; this.updateWishFace();
-      this.options.cancelAction();
-      if (this.flipped) this.options.onAction(() => this.nextWish(), 3.2);
     }
     updateWishFace() {
       $("wish-card").classList.toggle("flipped", this.flipped);
-      $("wish-card").setAttribute("aria-pressed", String(this.flipped));
-      $("wish-card").setAttribute("aria-label", this.flipped ? "Tiếp tục lời chúc" : this.wishes[this.wishIndex].text + " " + this.wishes[this.wishIndex].detail + " Lật thẻ để xem ảnh");
+      $("wish-card").removeAttribute("aria-pressed");
+      $("wish-card").setAttribute("aria-label", this.wishes[this.wishIndex].text + " " + this.wishes[this.wishIndex].detail + " Nhấp để tiếp tục.");
       $("wish-front").setAttribute("aria-hidden", String(this.flipped));
       $("wish-back").setAttribute("aria-hidden", String(!this.flipped));
       $("wish-flip").setAttribute("aria-label", this.flipped ? "Lật lại lời chúc" : "Lật lời chúc để xem ảnh");
@@ -46789,7 +46774,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let width = innerWidth, height = innerHeight, radius = 220, dpr = 1;
   let scene = "intro", sceneStart = performance.now(), lastFrame = sceneStart;
   let transition = null, restore = null, flashStart = 0, heartStart = 0;
-  let action = null, photoOrigin = null;
+  let photoOrigin = null;
   let journey = null, flightTarget = { x: width / 2, y: height * .42 };
   let yaw = 0, pitch = -.12, yawVelocity = 0, pitchVelocity = 0;
   let pointer = { x: width / 2, y: height / 2, px: width / 2, py: height / 2, active: false, speed: 0, movedAt: 0, type: "mouse" };
@@ -46817,7 +46802,7 @@ document.addEventListener("DOMContentLoaded", function () {
       button.className = "photo-tile";
       button.type = "button";
       button.tabIndex = -1;
-      button.setAttribute("aria-label", "Xem ảnh kỷ niệm " + (index + 1));
+      button.setAttribute("aria-label", "Ảnh kỷ niệm " + (index + 1) + ". Nhấp để tiếp tục.");
       button.dataset.index = String(index);
       const img = document.createElement("img");
       img.src = images[index]; img.alt = ""; img.draggable = false;
@@ -46916,7 +46901,7 @@ document.addEventListener("DOMContentLoaded", function () {
   images.forEach((src, i) => {
     const button = document.createElement("button");
     button.className = "collage-photo";
-    button.setAttribute("aria-label", "Xem ảnh kỷ niệm " + (i + 1));
+    button.setAttribute("aria-label", "Ảnh kỷ niệm " + (i + 1) + ". Nhấp để thả lời chúc.");
     const img = document.createElement("img");
     img.src = src; img.alt = "Ảnh kỷ niệm " + (i + 1);
     button.append(img);
@@ -46929,15 +46914,10 @@ document.addEventListener("DOMContentLoaded", function () {
       reduced: () => reduced,
       onNavigate: showJourney,
       onHome: returnToGlobe,
-      onPhoto: showPhoto,
-      onAction: queueAction,
-      cancelAction: () => { action = null; }
+      onPhoto: showPhoto
     });
   } else {
     $("ribbon-button").hidden = true;
-  }
-  function queueAction(run, delay = .6, ready = () => true) {
-    action = { scene, run, remaining:delay, ready };
   }
   function showJourney(stage) {
     if (!journey) return;
@@ -46995,7 +46975,6 @@ document.addEventListener("DOMContentLoaded", function () {
       rigidGlobe.physics.stop();
       rigidGlobe.setActive(false);
     }
-    action = null;
     scene = next; sceneStart = now; document.body.dataset.scene = next;
     if (journey) {
       if (!["ribbon","wishes","constellation"].includes(next)) journey.hide();
@@ -47007,7 +46986,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const galleryVisible = ["globe","envelope","letter","sending","finale","restart"].includes(next);
     gallery.classList.toggle("visible", galleryVisible);
     gallery.style.visibility = galleryVisible ? "visible" : "hidden";
-    globe.setAttribute("aria-label", next === "finale" ? "Chọn một ảnh trong trái tim để xem lớn" : "Kéo để xoay ảnh, chọn một ảnh để xem lớn");
+    globe.setAttribute("aria-label", next === "finale" ? "Nhấp để xem lại từ đầu" : "Nhấp để tiếp tục, hoặc kéo để xoay quả cầu");
     envelope.disabled = journey ? next !== "constellation" : next !== "globe";
     $("ribbon-button").disabled = next !== "globe";
     replay.disabled = next !== "finale";
@@ -47072,14 +47051,6 @@ document.addEventListener("DOMContentLoaded", function () {
     hint.classList.remove("show");
     if (!photoDialog.open) { photoOrigin = scene; photoDialog.showModal(); }
   }
-  globe.addEventListener("click", e => {
-    const tile = e.target.closest(".photo-tile");
-    // Raycasting follows the curved photo under the pointer, including its edges.
-    if (scene === "globe" && rigidGlobe && document.body.dataset.globeRenderer === "curved-webgl" && e.detail !== 0) {
-      const hit = rigidGlobe.pick(e.clientX, e.clientY);
-      if (hit >= 0) showPhoto(tiles[hit].index);
-    } else if (tile) showPhoto(Number(tile.dataset.index));
-  });
   $("photo-close").addEventListener("click", () => photoDialog.close());
   $("photo-prev").addEventListener("click", () => showPhoto(selectedPhoto - 1));
   $("photo-next").addEventListener("click", () => showPhoto(selectedPhoto + 1));
@@ -47091,9 +47062,7 @@ document.addEventListener("DOMContentLoaded", function () {
   photoDialog.addEventListener("click", e => { if (e.target === photoDialog) photoDialog.close(); });
   photoDialog.addEventListener("close", () => {
     if (photoOrigin !== scene) return;
-    if (scene === "globe") queueAction(() => showJourney("ribbon"), .6);
-    else if (scene === "ribbon") journey.photoViewed(selectedPhoto);
-    else if (scene === "constellation") queueAction(beginEnvelope, .7);
+    if (scene === "ribbon") journey.photoViewed(selectedPhoto);
   });
   let swipe = null, swipedPhoto = false;
   $("large-photo").addEventListener("pointerdown", e => {
@@ -47117,7 +47086,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   globe.addEventListener("pointerdown", e => {
     if (scene !== "globe" || photoDialog.open || e.button !== 0 || drag) return;
-    action = null;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, lastX: e.clientX, lastY: e.clientY,
       moved: false, target: e.target.closest(".photo-tile") || globe };
     drag.target.setPointerCapture(e.pointerId);
@@ -47149,18 +47117,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (rigidGlobe) rigidGlobe.physics.end(performance.now() / 1000,
       !ended.moved || !e || e.type === "pointercancel" || reduced);
     if (ended.target.hasPointerCapture(ended.id)) ended.target.releasePointerCapture(ended.id);
-    if (ended.moved && e && e.type === "pointerup" && scene === "globe") {
-      queueAction(() => showJourney("ribbon"), .9, () =>
-        !rigidGlobe || rigidGlobe.physics.velocity.length() < .025);
-    }
   }
   globe.addEventListener("pointerup", endDrag);
   globe.addEventListener("pointercancel", endDrag);
   globe.addEventListener("lostpointercapture", endDrag);
-  globe.addEventListener("click", e => {
-    if (scene === "globe" && !photoDialog.open && !e.target.closest(".photo-tile") && performance.now() - lastDragAt > 350)
-      queueAction(() => showJourney("ribbon"), .5);
-  });
   globe.addEventListener("pointerleave", () => { if (rigidGlobe) rigidGlobe.highlight(-1); });
   addEventListener("blur", () => endDrag());
 
@@ -47212,30 +47172,6 @@ document.addEventListener("DOMContentLoaded", function () {
     $("flip-button").setAttribute("aria-label", flipped ? "Lật lại lời chúc" : "Lật thư để xem ảnh");
   }
   $("flip-button").addEventListener("click", flipLetter);
-  $("letter-card").addEventListener("click", e => {
-    if (e.target.closest(".collage-photo")) return;
-    if (letterSwipeMoved) { letterSwipeMoved = false; return; }
-    if (getSelection().toString()) return;
-    if (flipped) sendLetter();
-    else flipLetter();
-  });
-  let letterSwipe = null, letterSwipeMoved = false;
-  $("letter-card").addEventListener("pointerdown", e => {
-    letterSwipeMoved = false;
-    letterSwipe = { x:e.clientX, y:e.clientY };
-  });
-  $("letter-card").addEventListener("pointerup", e => {
-    if (!letterSwipe) return;
-    const dx = e.clientX - letterSwipe.x, dy = e.clientY - letterSwipe.y;
-    letterSwipe = null;
-    // Vertical scrolling is reading, never a command to leave the letter.
-    if (Math.abs(dy) > 12) letterSwipeMoved = true;
-    if (Math.abs(dx) > 50 && Math.abs(dy) < 50) {
-      letterSwipeMoved = true;
-      if (flipped) sendLetter(); else flipLetter();
-    }
-  });
-  $("letter-card").addEventListener("pointercancel", () => { letterSwipe = null; letterSwipeMoved = true; });
   function openLetter() {
     setScene("letter"); transition = null;
     flipped = false; $("letter-card").classList.remove("flipped");
@@ -47289,14 +47225,66 @@ document.addEventListener("DOMContentLoaded", function () {
     const t = ease((progress - .78) / .22);
     return { x: lerp(orbitStart.x, width * .7, t), y: lerp(orbitStart.y, -100, t) };
   }
-  replay.addEventListener("click", e => {
+  function startReplay(e) {
     if (scene !== "finale" || transition) return;
     setScene("restart");
     finale.classList.remove("visible");
     transition = { kind: "restart", start: performance.now(), duration: reduced ? 600 : 4000,
       from: snapshot(), x: e.detail ? e.clientX : width / 2, y: e.detail ? e.clientY : height * .9 };
     gallery.classList.add("visible");
+  }
+  replay.addEventListener("click", startReplay);
+
+  // A click advances exactly one chapter. Drags and reading scrolls never do.
+  // Capture prevents nested photo buttons from opening a second, competing flow.
+  let chapterPress = null, chapterMoved = false;
+  const utility = target => target.closest(".topbar, #globe-controls, .journey-controls, #wish-dots, .letter-controls, #letter-close, #photo-dialog");
+  function advanceChapter(e) {
+    if (photoDialog.open || transition) return;
+    if (scene === "intro") {
+      intro.style.opacity = "0"; setScene("globe"); gallery.classList.add("visible");
+      if (!reduced) hint.classList.add("show");
+    } else if (scene === "globe") {
+      showJourney("ribbon");
+    } else if (scene === "ribbon") {
+      journey.setWish(0); showJourney("wishes");
+    } else if (scene === "wishes") {
+      journey.nextWish();
+    } else if (scene === "constellation") {
+      beginEnvelope();
+    } else if (scene === "letter") {
+      if (flipped) sendLetter(); else flipLetter();
+    } else if (scene === "finale") {
+      startReplay(e);
+    }
+  }
+  document.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    chapterPress = {id:e.pointerId,x:e.clientX,y:e.clientY}; chapterMoved = false;
+  }, true);
+  document.addEventListener("pointermove", e => {
+    if (chapterPress && e.pointerId === chapterPress.id && Math.hypot(e.clientX - chapterPress.x,e.clientY - chapterPress.y) > 9) chapterMoved = true;
+  }, {capture:true,passive:true});
+  document.addEventListener("pointerup", e => {
+    if (chapterPress && e.pointerId === chapterPress.id) {
+      if (Math.hypot(e.clientX-chapterPress.x,e.clientY-chapterPress.y)>9) chapterMoved = true;
+      chapterPress = null;
+    }
+  }, true);
+  document.addEventListener("pointercancel", () => { chapterPress = null; chapterMoved = true; }, true);
+  document.addEventListener("click", e => {
+    if (utility(e.target)) return;
+    if (!e.target.closest("#experience, #letter-dialog, #universe")) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if ((e.detail !== 0 && chapterMoved) || (scene === "letter" && getSelection().toString())) return;
+    advanceChapter(e);
+  }, true);
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || utility(e.target) || e.target.closest("button")) return;
+    if (!e.target.closest("#experience, #letter-dialog") && e.target !== document.body) return;
+    e.preventDefault(); advanceChapter(e);
   });
+
   function restart(now) {
     transition = null; restore = null; heartStart = 0; flashStart = now;
     yaw = 0; pitch = -.12; yawVelocity = pitchVelocity = 0;
@@ -47579,13 +47567,6 @@ document.addEventListener("DOMContentLoaded", function () {
       flash.style.opacity = String(1 - smooth(progress));
       if (musicWanted && !audio.paused) audio.volume = .55 * progress;
       if (progress === 1) flashStart = 0;
-    }
-    if (action && !document.hidden && !photoDialog.open && !drag && !(journey && journey.ribbonDrag)) {
-      if (action.scene !== scene) action = null;
-      else if (action.ready()) {
-        action.remaining -= seconds;
-        if (action.remaining <= 0) { const run = action.run; action = null; run(); }
-      }
     }
     drawUniverse(now, dt); renderTiles(now, dt, seconds);
     if (journey) journey.update(now, seconds, pointer);
