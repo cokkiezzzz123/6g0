@@ -1366,9 +1366,108 @@ body[data-scene="letter"] .cursor-star {
  .gratitude-card .chapter-kicker { font-size:9px; }
 }
 
+/* The gift is an unmistakable focal point, with silent tap demonstrations. */
+.constellation-scene .envelope-button,.envelope-reveal .envelope-button {
+  top:46%; bottom:auto; left:50%; width:222px; height:176px;
+  transform:translate(-50%,-50%); z-index:20; overflow:visible;
+}
+.envelope-button .envelope-body {
+  width:154px; height:104px; left:34px; bottom:26px;
+  background:linear-gradient(140deg,#deb0bd,#bb8198); border-radius:5px;
+  box-shadow:0 18px 42px #0005,0 0 35px #d7a0ad24;
+  animation:gift-float 4.4s ease-in-out infinite;
+}
+.envelope-button .envelope-flap { border-left-width:77px; border-right-width:77px; border-top-width:60px; border-top-color:#f1ced5; }
+.envelope-button .envelope-pocket { background:linear-gradient(34deg,#cf97ad 49%,transparent 50%) left/51% 100% no-repeat,linear-gradient(-34deg,#e4b4c4 49%,transparent 50%) right/51% 100% no-repeat; }
+.envelope-button .envelope-note { left:13px; right:13px; height:91px; bottom:16px; padding-top:10px; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 -3px 12px #643c4220; font-size:28px; }
+.note-date { font:8px/1.5 "Be Vietnam Pro",sans-serif; letter-spacing:.2em; color:#b58c79; }
+.envelope-button .envelope-seal { width:40px; height:40px; top:43px; left:57px; border:1px solid #f2d5aa; color:#fff0d4; background:radial-gradient(circle at 35% 25%,#d7aa7c,#956045); box-shadow:0 2px 12px #d3a58266,inset 0 0 0 3px #f6dcb233; font-size:17px; animation:seal-warmth 3.5s ease-in-out infinite; }
+.envelope-button .envelope-aura { inset:-80px; background:radial-gradient(ellipse,#e2b8ca26,transparent 66%); transform:none; }
+.envelope-orbit { position:absolute; width:240px; height:170px; left:-9px; top:6px; border:1px solid #edc9b62e; border-radius:50%; transform:rotate(-22deg); pointer-events:none; }
+.gift-spark { position:absolute; pointer-events:none; color:#f4d2ac; text-shadow:0 0 14px #e8c4a5; animation:twinkle 3s ease-in-out infinite; }
+.gift-spark-one { left:-4px; top:21px; font-size:22px; }
+.gift-spark-two { right:-8px; bottom:19px; font-size:16px; animation-delay:1.3s; }
+.guide-hand { position:absolute; width:42px; height:50px; pointer-events:none; z-index:30; filter:drop-shadow(0 3px 7px #120910d9); }
+.guide-hand svg { width:100%; height:100%; fill:#241b2de6; stroke:#fff5e9; stroke-width:1.7; }
+.envelope-hand { left:98px; top:98px; animation:gift-tap 2.7s ease-in-out infinite; }
+.gift-tap-ring { position:absolute; width:40px; height:40px; left:91px; top:89px; border:1px solid #ffe8bf; border-radius:50%; pointer-events:none; z-index:6; animation:gift-ring 2.7s ease-in-out infinite; }
+.constellation-scene .star-photo { opacity:.65; filter:saturate(.75); transition:filter .5s; }
+.constellation-scene .star-photo:hover { filter:none; }
+.constellation-lines { opacity:.4; }
+@keyframes gift-float { 50% {transform:translateY(-3px);} }
+@keyframes seal-warmth { 50% {box-shadow:0 2px 22px #eac49088,inset 0 0 0 3px #f6dcb244;} }
+@keyframes gift-tap { 0%,100% {opacity:0;transform:translate(32px,27px) rotate(-8deg);} 25% {opacity:1;transform:translate(8px,6px);} 43%,52% {opacity:1;transform:translate(0,0) scale(.9);} 75% {opacity:0;transform:translate(18px,16px);} }
+@keyframes gift-ring { 0%,34%,100% {opacity:0;transform:scale(.7);} 45% {opacity:.85;transform:scale(.95);} 72% {opacity:0;transform:scale(1.9);} }
+
+/* Opening: break the seal, lift the flap, and let the paper rise into the letter. */
+.envelope-reveal { position:fixed; inset:0; z-index:850; pointer-events:none; }
+.envelope-reveal .envelope-button { opacity:1; }
+.envelope-reveal .envelope-hand,.envelope-reveal .gift-tap-ring { display:none; }
+.envelope-reveal .envelope-orbit,.envelope-reveal .gift-spark { opacity:0; }
+.gift-reveal-glow { position:absolute; width:min(600px,95vw); height:min(600px,90vh); left:50%; top:46%; transform:translate(-50%,-50%); background:radial-gradient(ellipse,#f4d5b329,#e2abc214 35%,transparent 70%); }
+.is-opening .gift-reveal-glow { animation:gift-bloom 2.4s ease-out both; }
+.is-opening .envelope-body { animation:gift-release 2.4s ease-in-out both; }
+.is-opening .envelope-seal { animation:seal-release .6s ease-out both; }
+.is-opening .envelope-flap { animation:flap-release .9s .15s ease-in-out both; }
+.is-opening .envelope-note { animation:paper-rise 1.8s .4s cubic-bezier(.2,.75,.2,1) both; }
+@keyframes seal-release { to {opacity:0;transform:scale(1.8);filter:blur(3px);} }
+@keyframes flap-release { to {transform:rotateX(180deg);z-index:1;} }
+@keyframes paper-rise { 0% {transform:translateY(0);} 55% {transform:translateY(-100px) scale(1.12);opacity:1;} 100% {transform:translateY(-120px) scale(1.8);opacity:0;} }
+@keyframes gift-release { 0%,35% {transform:translateY(0) scale(1);} 75% {opacity:1;transform:translateY(45px) scale(.95);} 100% {opacity:0;transform:translateY(85px) scale(.9);} }
+@keyframes gift-bloom { 0% {opacity:.25;transform:translate(-50%,-50%) scale(.5);} 70% {opacity:1;} 100% {opacity:0;transform:translate(-50%,-50%) scale(1.4);} }
+
+/* Letter: layered stationery, a quick ink reveal, and a warm page-turn sheen. */
+.letter-dialog { animation:letter-arrival .85s cubic-bezier(.2,.75,.2,1); }
+.letter-dialog::backdrop { background:radial-gradient(ellipse at center,#261923b8,#07030be6 70%); }
+.letter-stack { position:absolute; inset:3px 0 64px; border-radius:6px; background:#e8d6cb; transform:translate(6px,7px) rotate(1.3deg); box-shadow:0 22px 80px #d2a0ac20; pointer-events:none; transition:transform .85s; }
+.letter-stack:before { content:""; position:absolute; inset:0; border-radius:inherit; background:#d9c3b9; transform:translate(4px,3px) rotate(-2.5deg); z-index:-1; }
+.letter-dialog[data-page="collage"] .letter-stack { transform:translate(-5px,8px) rotate(-1.3deg); }
+.letter-front { background:repeating-linear-gradient(0deg,#ba9c7e05 0,#ba9c7e05 1px,transparent 1px,transparent 4px),linear-gradient(120deg,#fff8f0,#fff1e8); }
+.letter-front h2 { position:relative; }
+.letter-front h2:after { content:""; display:block; width:64px; height:1px; margin-top:13px; background:linear-gradient(90deg,#bd8a80,transparent); transform-origin:left; animation:ink-line 1s .3s both; }
+.letter-dialog[data-page="letter"] .letter-reading p { animation:ink-appear .65s both; }
+.letter-reading p:nth-child(2) { animation-delay:.08s!important; }
+.letter-reading p:nth-child(3) { animation-delay:.16s!important; }
+.letter-reading p:nth-child(4) { animation-delay:.24s!important; }
+.letter-reading p:nth-child(5) { animation-delay:.32s!important; }
+.letter-flourish { text-shadow:0 0 15px #d39ca340; }
+.paper-corner { animation:corner-breathe 3.5s ease-in-out 3; }
+.letter-hand { right:7px; bottom:79px; width:34px; height:42px; animation:gift-tap 3s 1.6s 3 both; }
+.letter-dialog[data-page="collage"] .letter-hand,.letter-dialog.sending .guide-hand { display:none; }
+.page-sheen { position:absolute; inset:0 0 64px; background:linear-gradient(110deg,transparent 20%,#fff4da77 49%,transparent 75%); opacity:0; z-index:5; pointer-events:none; border-radius:6px; }
+.letter-dialog[data-page="collage"] .collage-photo { animation:photo-settle .7s .3s both; padding:5px; box-shadow:0 3px 12px #6f495d18; }
+.letter-dialog[data-page="collage"] .collage-photo:nth-child(2) { animation-delay:.4s; }
+.letter-dialog[data-page="collage"] .collage-photo:nth-child(3) { animation-delay:.5s; }
+.letter-dialog[data-page="collage"] .collage-photo:nth-child(4) { animation-delay:.6s; }
+.letter-back { background:linear-gradient(135deg,#fff8ee,#f6e6dc); }
+.letter-controls .send-button { position:relative; }
+.plane-hand { width:30px; height:37px; left:20px; top:25px; display:none; }
+.letter-dialog[data-page="collage"] .plane-hand { display:block; animation:gift-tap 2.8s 1.4s 3 both; }
+.letter-dialog[data-page="collage"] .send-button { animation:plane-invite 3s ease-in-out infinite; }
+@keyframes letter-arrival { from {opacity:0;transform:translateY(38px) scale(.94);} to {opacity:1;transform:translateY(0) scale(1);} }
+@keyframes ink-appear { from {opacity:0;transform:translateY(5px);} to {opacity:1;transform:translateY(0);} }
+@keyframes ink-line { from {transform:scaleX(0);opacity:0;} to {transform:scaleX(1);opacity:1;} }
+@keyframes corner-breathe { 50% {filter:brightness(1.12);transform:translate(-2px,-2px);} }
+@keyframes photo-settle { from {opacity:0;transform:translateY(12px) rotate(-2deg) scale(.97);} to {opacity:1;transform:translateY(0) rotate(0) scale(1);} }
+@keyframes plane-invite { 50% {box-shadow:0 0 0 6px #e9ca9f0b,0 0 24px #e9ca9f30;border-color:#e9ca9f80;} }
+@media(max-height:600px) {
+ .constellation-scene .envelope-button,.envelope-reveal .envelope-button { transform:translate(-50%,-50%) scale(.77); }
+ .letter-stack { bottom:52px; }
+ .letter-hand { bottom:62px; width:29px; height:36px; }
+ .page-sheen { bottom:52px; }
+ .plane-hand { top:18px; width:24px; height:30px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .guide-hand,.gift-tap-ring { animation:none!important; opacity:.9; transform:none; }
+ .envelope-button .envelope-body,.envelope-button .envelope-seal,.gift-spark,
+ .is-opening .envelope-note,.is-opening .envelope-flap,.is-opening .gift-reveal-glow,
+ .letter-dialog,.letter-reading p,.letter-front h2:after,.paper-corner,
+ .letter-dialog[data-page="collage"] .collage-photo,.letter-dialog[data-page="collage"] .send-button { animation:none!important; }
+}
+
 </style>
 </head>
-<body data-scene="intro" data-navigation="class-memories-v3">
+<body data-scene="intro" data-navigation="envelope-v4">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 17V5l12-2v12M9 8l12-2"/><ellipse cx="6" cy="17" rx="3" ry="2.5"/><ellipse cx="18" cy="15" rx="3" ry="2.5"/></symbol>
 <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -1408,8 +1507,12 @@ body[data-scene="letter"] .cursor-star {
 <button id="ribbon-button" hidden class="icon-button album-button" aria-label="Mở dải ảnh và tiếp tục"><svg><use href="#icon-stack"/></svg><svg class="small-arrow"><use href="#icon-arrow"/></svg></button>
 </div>
 <button id="envelope-button" class="envelope-button" aria-label="Mở thư dành tặng cô Nga" disabled>
-<span class="envelope-aura"></span>
-<span class="envelope-body"><span class="envelope-note">♡</span><span class="envelope-flap"></span><span class="envelope-pocket"></span><span class="envelope-seal">♥</span></span>
+<span class="envelope-aura" aria-hidden="true"></span>
+<span class="envelope-orbit" aria-hidden="true"></span>
+<span class="gift-spark gift-spark-one" aria-hidden="true">✦</span><span class="gift-spark gift-spark-two" aria-hidden="true">✧</span>
+<span class="gift-tap-ring" aria-hidden="true"></span>
+<span class="guide-hand envelope-hand" aria-hidden="true"><svg><use href="#icon-hand"/></svg></span>
+<span class="envelope-body"><span class="envelope-note"><span class="note-date">20 · 11</span><span>♡</span></span><span class="envelope-flap"></span><span class="envelope-pocket"></span><span class="envelope-seal">♥</span></span>
 </button>
 </section>
 <section id="journey-shell" class="journey-shell" aria-label="Hành trình kỷ niệm" hidden inert>
@@ -1471,6 +1574,7 @@ body[data-scene="letter"] .cursor-star {
 </section>
 <div id="journey-progress" class="journey-progress" aria-hidden="true" hidden><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 </main>
+<div id="envelope-reveal" class="envelope-reveal" aria-hidden="true" hidden><div class="gift-reveal-glow"></div></div>
 <div id="flight-plane" class="flight-plane" aria-hidden="true"><svg><use href="#icon-plane"/></svg></div>
 <div id="portal-flash" class="portal-flash" aria-hidden="true"></div>
 <div id="cursor-star" class="cursor-star" aria-hidden="true">✦</div>
@@ -1482,6 +1586,8 @@ body[data-scene="letter"] .cursor-star {
 </dialog>
 <dialog id="letter-dialog" class="letter-dialog" aria-label="Lá thư dành tặng cô Nga">
 <button id="letter-close" class="icon-button dialog-close" aria-label="Khép thư và thả lời chúc"><svg><use href="#icon-close"/></svg></button>
+<div class="letter-stack" aria-hidden="true"></div><div id="page-sheen" class="page-sheen" aria-hidden="true"></div>
+<span class="guide-hand letter-hand" aria-hidden="true"><svg><use href="#icon-hand"/></svg></span>
 <div id="letter-card" class="letter-card" role="group" aria-label="Lá thư. Nhấp để xem ảnh kỷ niệm.">
 <article id="letter-front" class="letter-face letter-front">
 <div class="letter-date">20 · 11</div>
@@ -1499,7 +1605,7 @@ body[data-scene="letter"] .cursor-star {
 </div>
 <div class="letter-controls">
 <button id="flip-button" class="icon-button" aria-label="Lật thư để xem ảnh" aria-pressed="false"><svg><use href="#icon-flip"/></svg></button>
-<button id="send-button" class="icon-button send-button" aria-label="Thả lời chúc lên bầu trời"><svg><use href="#icon-plane"/></svg></button>
+<button id="send-button" class="icon-button send-button" aria-label="Thả lời chúc lên bầu trời"><svg><use href="#icon-plane"/></svg><span class="guide-hand plane-hand" aria-hidden="true"><svg><use href="#icon-hand"/></svg></span></button>
 </div>
 </dialog>
 <audio id="background-music" src="image/nhac.mp3" preload="none" loop></audio>
@@ -47256,6 +47362,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function snapshot() { return tiles.map(tile => ({ ...tile.screen })); }
+  function resetGiftReveal() {
+    $("envelope-reveal").hidden = true;
+    $("envelope-reveal").classList.remove("is-opening");
+    $("constellation-scene").append(envelope);
+  }
   function beginEnvelope() {
     if (!["globe","constellation"].includes(scene) || transition) return;
     endDrag();
@@ -47265,6 +47376,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const now = performance.now();
     transition = { kind: "envelope", start: now, duration: reduced ? 250 : 2400, from: snapshot() };
     burst(pointer.active ? pointer.x : width / 2, pointer.active ? pointer.y : height * .8, 80, 1.5);
+    // Keep the real envelope visible after the constellation becomes inert.
+    const reveal = $("envelope-reveal");
+    reveal.append(envelope); reveal.hidden = false;
+    reveal.classList.add("is-opening");
     envelope.classList.remove("ready"); setScene("envelope", now);
   }
   envelope.addEventListener("click", beginEnvelope);
@@ -47272,6 +47387,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (scene !== "letter") return;
     flipped = !flipped;
     $("letter-card").classList.toggle("flipped", flipped);
+    letterDialog.dataset.page = flipped ? "collage" : "letter";
+    if (!reduced && $("page-sheen").animate) $("page-sheen").animate([
+      {opacity:0,transform:"translateX(-110%) skewX(-18deg)"},
+      {opacity:.55,offset:.45},
+      {opacity:0,transform:"translateX(110%) skewX(-18deg)"}
+    ],{duration:950,easing:"ease-out"});
     $("letter-front").inert = flipped; $("letter-back").inert = !flipped;
     $("letter-front").setAttribute("aria-hidden", String(flipped));
     $("letter-back").setAttribute("aria-hidden", String(!flipped));
@@ -47280,7 +47401,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   $("flip-button").addEventListener("click", flipLetter);
   function openLetter() {
+    resetGiftReveal();
     setScene("letter"); transition = null;
+    letterDialog.dataset.page = "letter";
     flipped = false; $("letter-card").classList.remove("flipped");
     $("letter-front").inert = false; $("letter-back").inert = true;
     $("letter-front").setAttribute("aria-hidden", "false");
@@ -47397,6 +47520,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function restart(now) {
+    resetGiftReveal();
     transition = null; restore = null; heartStart = 0; flashStart = now;
     yaw = 0; pitch = -.12; yawVelocity = pitchVelocity = 0;
     if (rigidGlobe) {
