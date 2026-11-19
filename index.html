@@ -1642,9 +1642,102 @@ body[data-scene="letter"] .cursor-star {
 }
 @media(prefers-reduced-motion:reduce) { .book-ribbon,.lantern-art,.promise-art>path:first-child { animation:none!important; } .promise-art>path:first-child {stroke-dashoffset:0;} }
 
+/* Review fixes: three wishes with different compositions and generous heading space. */
+.wishes-scene .chapter-copy { top:12%; width:min(88%,760px); font-size:clamp(16px,1.6vw,20px); }
+.wishes-scene .wish-tilt { top:47%; width:min(880px,calc(100vw - 48px)); height:min(410px,52vh); }
+.wishes-scene .wish-face { box-shadow:none; border:0; border-radius:0; overflow:visible; }
+.wishes-scene .wish-front { padding:18px; background:none; }
+.wishes-scene .wish-front:before,.wishes-scene .wish-corner { display:none; }
+.wish-art { display:block; position:relative; flex:none; pointer-events:none; }
+.wish-garden,.wish-house,.wish-sun { display:none; }
+.wish-copy { position:relative; display:flex; flex-direction:column; align-items:center; gap:18px; }
+.wishes-scene .wish-text { display:block; font-size:clamp(28px,3.2vw,40px); line-height:1.4; }
+.wishes-scene .wish-detail { display:block; font-size:16px; line-height:1.85; max-width:440px; }
+.wishes-scene .wish-icon { width:32px; height:32px; flex:none; }
+[data-wish="health"] .wish-front { display:grid; grid-template-columns:230px minmax(0,440px); gap:40px; justify-content:center; color:#f4e7e5; }
+[data-wish="health"] .wish-copy { text-align:left; align-items:flex-start; }
+[data-wish="health"] .wish-detail { color:#d1bdc4; }
+[data-wish="health"] .wish-icon { stroke:#b8d2b8; }
+[data-wish="health"] .wish-garden { display:block; width:100%; height:330px; overflow:visible; }
+.garden-stem { stroke:#bdd1ad; stroke-width:2; stroke-linecap:round; }
+.garden-leaf { fill:#8da990; fill-opacity:.75; stroke:#c2d8b9; stroke-width:1; }
+.garden-flower { transform-origin:126px 220px; animation:garden-breathe 5s ease-in-out infinite; }
+@keyframes garden-breathe { 50% { transform:rotate(3deg); } }
+[data-wish="sunshine"] .wish-front { display:flex; justify-content:center; color:#684728; }
+[data-wish="sunshine"] .wish-art { position:absolute; inset:0; display:grid; place-items:center; }
+[data-wish="sunshine"] .wish-sun { display:block; position:relative; width:min(410px,51vh); height:min(410px,51vh); }
+.sun-core { position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle at 40% 30%,#fff2c9,#f4d28e 80%); box-shadow:0 0 65px #f1c97630,0 0 130px #ddaa5b12; }
+.wish-sun:before { content:""; position:absolute; inset:-32px; border-radius:50%; background:repeating-conic-gradient(#ebc87d55 0deg 1deg,transparent 1deg 15deg); mask:radial-gradient(circle,transparent 63%,#000 64%); animation:sun-turn 100s linear infinite; }
+.sun-orbit { position:absolute; inset:-16px; border:1px solid #e8c88044; border-radius:50%; }
+.sun-spark { position:absolute; color:#ffe4a1; text-shadow:0 0 15px #eac476; }
+.sun-spark-one { top:17%; right:-32px; font-size:28px; }
+.sun-spark-two { bottom:12%; left:-34px; font-size:20px; }
+[data-wish="sunshine"] .wish-copy { width:min(300px,70%); gap:14px; }
+[data-wish="sunshine"] .wish-text { font-size:clamp(26px,3vw,35px); }
+[data-wish="sunshine"] .wish-detail { color:#765838; font-size:16px; line-height:1.7; }
+[data-wish="sunshine"] .wish-icon { display:none; }
+@keyframes sun-turn { to { transform:rotate(360deg); } }
+[data-wish="home"] .wish-front { display:flex; flex-direction:column; justify-content:center; gap:16px; color:#f7e9e2; background:none; border:0; box-shadow:none; }
+[data-wish="home"] .wish-house { display:block; width:min(340px,70vw); height:180px; overflow:visible; filter:drop-shadow(0 0 20px #efc28c15); }
+[data-wish="home"] .wish-copy { max-width:620px; gap:12px; }
+[data-wish="home"] .wish-text { font-size:clamp(27px,3vw,35px); }
+[data-wish="home"] .wish-detail { max-width:520px; color:#cdbac9; }
+[data-wish="home"] .wish-icon { display:none; }
+/* Fit the frame to the real photograph, retaining every face. */
+.memories-scene[data-layout="moon"] .memory-photo { width:auto; max-width:100%; justify-self:center; aspect-ratio:886/777; padding:10px; border-radius:12px; background:linear-gradient(150deg,#e2c27e22,#161426); }
+.memories-scene[data-layout="moon"] .memory-photo img { border-radius:5px; }
+body[data-scene="finale"] .photo-tile { background:#dac7cc; box-shadow:0 2px 12px #0005,0 0 14px #e8bacb18; }
+body[data-scene="finale"] .photo-tile img { object-fit:contain; background:#211823; }
+/* The actual letter grows from the paper in the envelope, with no second pop-in. */
+.letter-dialog.from-envelope { animation:none; }
+.letter-dialog.from-envelope::backdrop { animation:letter-backdrop-in 1.2s ease both; }
+.letter-dialog.unfolding .letter-stack,.letter-dialog.unfolding .letter-controls,.letter-dialog.unfolding .dialog-close,.letter-dialog.unfolding .guide-hand { opacity:0; }
+.letter-dialog.unfolding .letter-reading,.letter-dialog.unfolding .letter-date,.letter-dialog.unfolding .letter-front h2,.letter-dialog.unfolding .letter-flourish,.letter-dialog.unfolding .paper-corner { animation:unfold-ink .6s .65s both; }
+.letter-dialog.unfolding .letter-reading p { animation:none; }
+@keyframes unfold-ink { from { opacity:0; } to { opacity:1; } }
+@keyframes letter-backdrop-in { from { opacity:0; } to { opacity:1; } }
+@media(max-width:600px) {
+ .wishes-scene .chapter-copy { top:12%; font-size:16px; }
+ .wishes-scene .wish-tilt { width:calc(100vw - 34px); height:min(420px,53vh); }
+ [data-wish="health"] .wish-front { grid-template-columns:80px minmax(0,1fr); gap:14px; padding:6px; }
+ [data-wish="health"] .wish-garden { width:100px; height:250px; transform:translateX(-12px); }
+ [data-wish="health"] .wish-text { font-size:28px; }
+ .wishes-scene .wish-detail { font-size:15px; line-height:1.75; }
+ .wish-copy { gap:14px; }
+ [data-wish="sunshine"] .wish-sun { width:min(82vw,48vh); height:min(82vw,48vh); }
+ [data-wish="sunshine"] .wish-copy { width:72%; max-width:270px; gap:12px; }
+ [data-wish="sunshine"] .wish-text { font-size:27px; }
+ [data-wish="sunshine"] .wish-detail { font-size:14px; line-height:1.65; }
+ [data-wish="home"] .wish-house { height:145px; }
+ [data-wish="home"] .wish-front { gap:12px; padding:8px; }
+ [data-wish="home"] .wish-text { font-size:27px; }
+ [data-wish="home"] .wish-copy { gap:10px; }
+ .memories-scene[data-layout="moon"] .memory-photo { padding:7px; border-radius:10px; }
+}
+@media(max-height:600px) and (min-width:601px) {
+ .wishes-scene .chapter-copy { top:12%; font-size:15px; }
+ .wishes-scene .wish-tilt { top:47%; width:min(700px,80vw); height:48vh; }
+ [data-wish="health"] .wish-front { grid-template-columns:140px 340px; gap:30px; padding:0; }
+ [data-wish="health"] .wish-garden { height:210px; }
+ .wishes-scene .wish-text { font-size:26px; }
+ .wishes-scene .wish-detail { font-size:14px; line-height:1.65; }
+ .wish-copy { gap:10px; }
+ [data-wish="sunshine"] .wish-sun { width:52vh; height:52vh; }
+ [data-wish="sunshine"] .wish-copy { width:210px; gap:8px; }
+ [data-wish="sunshine"] .wish-text { font-size:23px; }
+ [data-wish="sunshine"] .wish-detail { font-size:12px; }
+ [data-wish="home"] .wish-front { display:grid; grid-template-columns:210px 330px; gap:28px; }
+ [data-wish="home"] .wish-house { width:210px; height:150px; }
+ [data-wish="home"] .wish-copy { text-align:left; align-items:flex-start; }
+ .memories-scene[data-layout="moon"] .memory-photo { width:auto; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .garden-flower,.wish-sun:before,.letter-dialog.unfolding *,.letter-dialog.from-envelope::backdrop { animation:none!important; }
+}
+
 </style>
 </head>
-<body data-scene="intro" data-navigation="distinct-scenes-v7">
+<body data-scene="intro" data-navigation="reviewed-scenes-v8">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 17V5l12-2v12M9 8l12-2"/><ellipse cx="6" cy="17" rx="3" ry="2.5"/><ellipse cx="18" cy="15" rx="3" ry="2.5"/></symbol>
 <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -1732,7 +1825,15 @@ body[data-scene="letter"] .cursor-star {
 <p class="chapter-copy">Một chút biết ơn, gửi thành ba lời chúc.</p>
 <div id="wish-tilt" class="wish-tilt">
 <button id="wish-card" class="wish-card" aria-label="Lật lời chúc để xem ảnh" aria-pressed="false">
-<span id="wish-front" class="wish-face wish-front"><svg class="wish-icon" aria-hidden="true"><use id="wish-icon-use" href="#icon-health"/></svg><span id="wish-text" class="wish-text">Chúc cô luôn mạnh khỏe.</span><span id="wish-detail" class="wish-detail"></span><span class="wish-corner" aria-hidden="true"></span></span>
+<span id="wish-front" class="wish-face wish-front">
+<span class="wish-art" aria-hidden="true">
+<svg class="wish-garden" viewBox="0 0 230 330" fill="none"><path class="garden-stem" d="M114 310Q88 234 119 154Q139 106 126 54M112 244Q63 212 42 167M113 194Q163 177 182 128"/><path class="garden-leaf" d="M107 258Q43 273 41 220Q89 213 107 258ZM111 207Q58 198 67 155Q108 163 111 207ZM116 238Q176 242 180 195Q138 191 116 238ZM123 156Q168 156 161 116Q126 120 123 156Z"/><g class="garden-flower"><path d="M126 76C88 67 82 34 102 28C119 22 128 43 126 54C120 28 137 11 150 23C164 36 145 55 135 58C159 43 180 56 169 72C158 87 141 75 135 69C144 95 119 108 111 91C106 81 117 72 126 69" fill="#ebbdc2"/><circle cx="130" cy="63" r="9" fill="#e4c78a"/></g><path d="M48 310H181" stroke="#e1c4ba" stroke-width="1"/></svg>
+<span class="wish-sun"><span class="sun-core"></span><span class="sun-orbit"></span><span class="sun-spark sun-spark-one">✦</span><span class="sun-spark sun-spark-two">✧</span></span>
+<svg class="wish-house" viewBox="0 0 420 225" fill="none"><path d="M20 99L210 12L400 99" stroke="#e4bb94" stroke-width="3"/><path d="M52 92V211H368V92" fill="#33283d" stroke="#a98b9d"/><path d="M92 118H156V177H92ZM264 118H328V177H264Z" fill="#f8d49c"/><path d="M124 118V177M92 147H156M296 118V177M264 147H328" stroke="#7a5965" stroke-width="3"/><path d="M187 211V132Q210 109 233 132V211" fill="#4f3b50" stroke="#ba95a1"/><circle cx="225" cy="176" r="2" fill="#f5d5a7"/><path d="M68 211H352" stroke="#e0b7a0"/><path d="M71 43V10H96V31" stroke="#a98b9d" stroke-width="3"/><path d="M81 0Q63 -18 82 -31" stroke="#e4bb9477" stroke-width="2"/><path d="M208 72C195 57 176 77 208 96C240 77 221 57 208 72" fill="#d5a6b6"/></svg>
+</span>
+<span class="wish-copy"><svg class="wish-icon" aria-hidden="true"><use id="wish-icon-use" href="#icon-health"/></svg><span id="wish-text" class="wish-text">Chúc cô luôn mạnh khỏe.</span><span id="wish-detail" class="wish-detail"></span></span>
+<span class="wish-corner" aria-hidden="true"></span>
+</span>
 <span id="wish-back" class="wish-face wish-back" aria-hidden="true"><img id="wish-photo" src="image/anh6.jpg" alt="Ảnh kỷ niệm cùng cô Nga"></span>
 </button>
 </div>
@@ -47183,7 +47284,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const hint = $("gesture-hint");
   let width = innerWidth, height = innerHeight, radius = 220, dpr = 1;
   let scene = "intro", sceneStart = performance.now(), lastFrame = sceneStart;
-  let transition = null, restore = null, flashStart = 0, heartStart = 0;
+  let transition = null, restore = null, flashStart = 0, heartStart = 0, letterEntrance = null;
   let photoOrigin = null;
   let journey = null, flightTarget = { x: width / 2, y: height * .42 };
   let yaw = 0, pitch = -.12, yawVelocity = 0, pitchVelocity = 0;
@@ -47283,7 +47384,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fullscreenButton.setAttribute("aria-pressed", String(full));
     fullscreenButton.setAttribute("aria-label", full ? "Thoát toàn màn hình" : "Xem toàn màn hình");
   });
-  // Even spacing along the heart keeps its outline clear with fewer photos.
+  // A single, evenly spaced heart: one tile per photograph, with no duplicates.
   const outline = [], lengths = [0];
   for (let n = 0; n <= 720; n++) {
     const t = n / 720 * TAU;
@@ -47292,12 +47393,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (n) lengths.push(lengths[n - 1] + Math.hypot(p.x - outline[n - 1].x, p.y - outline[n - 1].y));
     outline.push(p);
   }
-  const outerCount = Math.round(tiles.length * .62), middleCount = Math.round(tiles.length * .27);
-  for (const ring of [
-    { count: tiles.length - outerCount - middleCount, scale: .23 },
-    { count: middleCount, scale: .59 },
-    { count: outerCount, scale: 1 }
-  ]) {
+  const finaleTiles = new Set(images.map((_,index) => tiles.find(tile => tile.index === index)));
+  for (const ring of [{ count: images.length, scale: 1 }]) {
     let segment = 1;
     for (let n = 0; n < ring.count; n++) {
       const distance = n / ring.count * lengths[lengths.length - 1];
@@ -47560,13 +47657,13 @@ document.addEventListener("DOMContentLoaded", function () {
     pointer.type = e.pointerType; pointer.movedAt = now;
     pointer.speed = Math.min(45, Math.hypot(dx, dy));
     if (!reduced && !calm() && scene !== "restart" && (e.pointerType === "mouse" || e.buttons)) {
-      const steps=wasActive ? Math.min(6,Math.max(1,Math.ceil(Math.hypot(dx,dy)/9))) : 1;
+      const steps=wasActive ? Math.min(3,Math.max(1,Math.ceil(Math.hypot(dx,dy)/12))) : 1;
       for(let i=1;i<=steps;i++) trails.push({
         x:wasActive ? lerp(pointer.px,pointer.x,i/steps) : pointer.x,
         y:wasActive ? lerp(pointer.py,pointer.y,i/steps) : pointer.y,
-        born:now,r:.9+Math.min(1,pointer.rate/1000)*1.9
+        born:now,r:.7+Math.min(1,pointer.rate/1000)*1.1, mouse:true
       });
-      if (trails.length > 96) trails.splice(0,trails.length-96);
+      if (trails.length > 40) trails.splice(0,trails.length-40);
     }
     cursorStar.style.left = e.clientX + "px"; cursorStar.style.top = e.clientY + "px";
     cursorStar.style.opacity = e.pointerType === "mouse" && !calm() ? ".75" : "0";
@@ -47587,6 +47684,13 @@ document.addEventListener("DOMContentLoaded", function () {
     $("envelope-reveal").hidden = true;
     $("envelope-reveal").classList.remove("is-opening");
     $("constellation-scene").append(envelope);
+    envelope.querySelector(".envelope-note").style.visibility = "";
+  }
+  function finishLetterEntrance() {
+    const animation = letterEntrance; letterEntrance = null;
+    if (animation) animation.cancel();
+    letterDialog.classList.remove("unfolding");
+    resetGiftReveal();
   }
   function beginEnvelope() {
     if (!["globe","constellation"].includes(scene) || transition) return;
@@ -47595,7 +47699,7 @@ document.addEventListener("DOMContentLoaded", function () {
       tiles.forEach(tile => { tile.screen = journey.photoPose(tile.index); });
     }
     const now = performance.now();
-    transition = { kind: "envelope", start: now, duration: reduced ? 250 : 2800, from: snapshot() };
+    transition = { kind: "envelope", start: now, duration: reduced ? 250 : 1350, from: snapshot() };
     burst(pointer.active ? pointer.x : width / 2, pointer.active ? pointer.y : height * .8, 80, 1.5);
     // Keep the real envelope visible after the constellation becomes inert.
     const reveal = $("envelope-reveal");
@@ -47611,6 +47715,7 @@ document.addEventListener("DOMContentLoaded", function () {
   envelope.addEventListener("click", beginEnvelope);
   function flipLetter() {
     if (scene !== "letter") return;
+    finishLetterEntrance();
     flipped = !flipped;
     $("letter-card").classList.toggle("flipped", flipped);
     letterDialog.dataset.page = flipped ? "collage" : "letter";
@@ -47627,7 +47732,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   $("flip-button").addEventListener("click", flipLetter);
   function openLetter() {
-    resetGiftReveal();
+    const fromEnvelope = !$("envelope-reveal").hidden && !reduced;
+    const paper = fromEnvelope ? envelope.querySelector(".envelope-note").getBoundingClientRect() : null;
+    if (!fromEnvelope) resetGiftReveal();
     setScene("letter"); transition = null;
     letterDialog.dataset.page = "letter";
     flipped = false; $("letter-card").classList.remove("flipped");
@@ -47636,10 +47743,22 @@ document.addEventListener("DOMContentLoaded", function () {
     $("letter-back").setAttribute("aria-hidden", "true");
     $("flip-button").setAttribute("aria-pressed", "false");
     $("flip-button").setAttribute("aria-label", "Lật thư để xem ảnh");
-    letterDialog.classList.remove("sending");
+    letterDialog.classList.remove("sending", "unfolding", "from-envelope");
+    if (fromEnvelope) letterDialog.classList.add("from-envelope", "unfolding");
     letterDialog.showModal();
     $("letter-front").scrollTop = 0;
     $("letter-front").querySelector(".letter-reading").focus({preventScroll:true});
+    if (fromEnvelope) {
+      const card = $("letter-card"), target = card.getBoundingClientRect();
+      const dx = paper.x + paper.width / 2 - target.x - target.width / 2;
+      const dy = paper.y + paper.height / 2 - target.y - target.height / 2;
+      envelope.querySelector(".envelope-note").style.visibility = "hidden";
+      letterEntrance = card.animate([
+        { transform:`translate(${dx}px,${dy}px) scale(${paper.width/target.width},${paper.height/target.height})` },
+        { transform:"translate(0,0) scale(1,1)" }
+      ], { duration:1250, easing:"cubic-bezier(.22,.72,.18,1)", fill:"both" });
+      letterEntrance.onfinish = finishLetterEntrance;
+    }
   }
   $("letter-close").addEventListener("click", sendLetter);
   letterDialog.addEventListener("click", e => { if (e.target === letterDialog && scene === "letter") sendLetter(); });
@@ -47651,6 +47770,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   function sendLetter() {
     if (scene !== "letter") return;
+    finishLetterEntrance();
     flightTarget = {
       x: pointer.active ? clamp(pointer.x, width * .35, width * .65) : width / 2,
       y: pointer.active ? clamp(pointer.y, height * .32, height * .46) : height * .4
@@ -47789,13 +47909,13 @@ document.addEventListener("DOMContentLoaded", function () {
       opacity: smooth((z + .02) * 4), z: Math.round(200 + z * 100) };
   }
   function heartPosition(tile, i, now) {
-    const p = heartPoints[i];
-    const r = Math.min(width * .27, height * .21, 225);
-    const wave = reduced ? 0 : Math.sin(now * .0006 + tile.float) * .8;
-    const mx = pointer.active && !reduced ? (pointer.x / width - .5) * 12 : 0;
+    const p = heartPoints[tile.index], r = Math.min(width * .34, height * .23, 250);
+    const mx = pointer.active && !reduced ? (pointer.x / width - .5) * 10 : 0;
+    const visible = finaleTiles.has(tile);
+    const scale = width < 600 ? Math.min(.74,r/185) : Math.min(1.12,r/190);
     return { x: width / 2 + p.x * r + mx,
-      y: height * .32 + p.y * r + wave, scale: width < 600 ? .32 : .48,
-      stretch: 1, rotation: Math.sin(tile.float) * 5, opacity: .94, z: 100 + Math.round(p.y * 10) };
+      y: height * .32 + p.y * r, scale: visible ? scale : .05,
+      stretch: 1, rotation: 0, opacity: visible ? 1 : 0, z: 100 + Math.round(p.y * 10) };
   }
   function tunnelPosition(tile, i, progress, kind) {
     const travel = kind === "restart" ? Math.pow(progress, 2.25) * 5.5 : progress * 2;
@@ -47962,13 +48082,24 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.save(); ctx.translate(width * .5, height * .44); ctx.rotate(-.32);
     ctx.scale(1, .22); ctx.lineWidth = 1; ctx.strokeStyle = "#d8b7bc0a";
     ctx.beginPath(); ctx.arc(0, 0, radius * 1.8, 0, TAU); ctx.stroke(); ctx.restore();
+    if (scene === "finale") {
+      const r = Math.min(width * .34, height * .23, 250);
+      const mx = pointer.active && !reduced ? (pointer.x / width - .5) * 10 : 0;
+      ctx.save(); ctx.translate(width / 2 + mx,height * .32);
+      ctx.globalAlpha = reduced ? .7 : smooth((now-heartStart)/2000)*.7;
+      ctx.strokeStyle = "#e8bacb"; ctx.lineWidth = 1;
+      ctx.shadowColor = "#e8bacb"; ctx.shadowBlur = 14; ctx.beginPath();
+      outline.forEach((p,i) => i ? ctx.lineTo(p.x*r,p.y*r) : ctx.moveTo(p.x*r,p.y*r));
+      ctx.closePath(); ctx.stroke(); ctx.restore();
+    }
     if (reduced) return;
-    trails = trails.filter(p => now - p.born < 850);
+    // Shorten only the mouse accent. The paper plane keeps its existing flight trail.
+    trails = trails.filter(p => now - p.born < (p.mouse ? 260 : 850) && (!p.mouse || Math.hypot(pointer.x-p.x,pointer.y-p.y) < 92));
     trails.forEach((p, i) => {
-      const life = 1 - (now - p.born) / 850;
-      ctx.fillStyle = "rgba(255,222,199," + life * .7 * quiet + ")";
+      const life = 1 - (now - p.born) / (p.mouse ? 260 : 850);
+      ctx.fillStyle = "rgba(255,222,199," + life * (p.mouse ? .42 : .7) * quiet + ")";
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r * life, 0, TAU); ctx.fill();
-      if (i > 0 && Math.hypot(p.x - trails[i - 1].x, p.y - trails[i - 1].y) < 100) {
+      if (!p.mouse && i > 0 && !trails[i - 1].mouse && Math.hypot(p.x - trails[i - 1].x, p.y - trails[i - 1].y) < 100) {
         ctx.strokeStyle = "rgba(255,218,207," + life * .38 * quiet + ")";
         ctx.lineWidth = life * 2.2; ctx.beginPath(); ctx.moveTo(trails[i - 1].x, trails[i - 1].y); ctx.lineTo(p.x, p.y); ctx.stroke();
       }
